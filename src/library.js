@@ -2,9 +2,9 @@
 
 // Global state management (scoping issues)
 books = [];  // Missing declaration
-var members = [];  // Wrong: should use let
+let members = [];  // Wrong: should use let
 const LATE_FEE_PER_DAY = 0.50;
-MAX_BOOKS_PER_MEMBER = 5;  // Missing const
+const MAX_BOOKS_PER_MEMBER = 5;  // Missing const
 
 // Book class with multiple issues
 class Book {
