@@ -1,4 +1,4 @@
-/* ====================== DIGITAL LIBRARY CSS ====================== */
+/* ====================== DIGITAL LIBRARY CSS - GOLD & MUSTARD THEME ====================== */
 :root {
   --primary-gold: #d4af37;
   --mustard: #e6b800;
@@ -69,22 +69,24 @@ nav button {
   overflow: hidden;
 }
 
+/* Hover Effect - Gradient */
 nav button:hover {
   border-color: var(--mustard);
   background: linear-gradient(to right, #1e1e1e, #d4af37);
   color: #1e1e1e;
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(212, 175, 55, 0.35);
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); /* Only on hover */
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
 }
 
+/* Selected State - Gradient Black to Gold */
 nav button[aria-selected="true"] {
   background: linear-gradient(to right, #1e1e1e 0%, #d4af37 100%);
   color: #1e1e1e;
   border-color: var(--primary-gold);
   box-shadow: 0 10px 25px rgba(212, 175, 55, 0.5);
   font-weight: 700;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); /* Only when selected */
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
 /* ====================== SECTIONS ====================== */
@@ -182,6 +184,16 @@ button:hover {
   box-shadow: 0 15px 35px rgba(212, 175, 55, 0.45);
 }
 
+/* ====================== FORM BUTTON SPACING FIX ====================== */
+form button {
+  margin-top: 25px !important;
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
 /* ====================== RESPONSIVE MEDIA QUERIES ====================== */
 /* Mobile Phones (Small) */
 @media (max-width: 480px) {
@@ -212,6 +224,9 @@ button:hover {
   }
   .form-group {
     min-width: 100%;
+  }
+  form button {
+    width: 100%;
   }
 }
 /* Large Laptops & Desktops */
