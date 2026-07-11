@@ -1,5 +1,3 @@
-// ui.js - Handles DOM interactions, Event Delegation, and Modern UI Rendering
-
 import {
   books,
   members,
@@ -29,20 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function switchTab(selectedTab) {
     if (!selectedTab) return;
 
-    // 1. Reset all tabs
     tabs.forEach(tab => {
       tab.setAttribute('aria-selected', 'false');
     });
 
-    // 2. Mark selected tab
     selectedTab.setAttribute('aria-selected', 'true');
-
-    // 3. Hide all sections
+    
     sections.forEach(section => {
       if (section) section.hidden = true;
     });
-
-    // 4. Show targeted section
+    
     const targetId = selectedTab.getAttribute('aria-controls');
     if (targetId) {
       const targetSection = document.getElementById(targetId);
@@ -56,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ====================== EVENT DELEGATION & LISTENERS ======================
   function setupEventListeners() {
-    // Tab Button Clicks
+    
     tabs.forEach(tab => {
       tab.addEventListener('click', (event) => {
         event.preventDefault();
@@ -64,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Event Delegation 1: Catalogue Quick Reserve
+    
     if (catalogueList !== null) {
       catalogueList.addEventListener('click', (event) => {
         const actionBtn = event.target.closest('.btn-quick-borrow');
@@ -77,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Event Delegation 2: Navigation Keyboard Navigation (Accessibility)
     const mainNav = document.querySelector('nav');
     if (mainNav !== null) {
       mainNav.addEventListener('keydown', (event) => {
@@ -87,12 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Search input debounce
     if (searchInput !== null) {
       searchInput.addEventListener('input', debounce(handleSearch, 300));
     }
-
-    // Category Filter dropdown
+    
     if (filterDropdown !== null) {
       filterDropdown.addEventListener('change', handleFilterChange);
     }
