@@ -11,17 +11,42 @@
     <div class="container">
       <header>
         <h1>Digital Library System</h1>
-        <nav>
-          <button id="catalogue-tab">Catalogue</button>
-          <button id="members-tab">Members</button>
-          <button id="statistics-tab">Statistics</button>
+        
+        <nav role="tablist" aria-label="Main navigation">
+          <button 
+            id="catalogue-tab" 
+            role="tab" 
+            aria-selected="true" 
+            aria-controls="catalogue-section">
+            Catalogue
+          </button>
+          <button 
+            id="members-tab" 
+            role="tab" 
+            aria-selected="false" 
+            aria-controls="member-section">
+            Members
+          </button>
+          <button 
+            id="statistics-tab" 
+            role="tab" 
+            aria-selected="false" 
+            aria-controls="statistics-section">
+            Statistics
+          </button>
         </nav>
       </header>
 
       <main>
-        <section id="catalogue-section">
+        <!-- Catalogue Section -->
+        <section id="catalogue-section" role="tabpanel" aria-labelledby="catalogue-tab">
+          <h2>Catalogue</h2>
+          
           <div class="controls">
+            <label for="search">Search books</label>
             <input type="text" id="search" placeholder="Search books..." />
+            
+            <label for="filter-category">Category</label>
             <select id="filter-category">
               <option value="all">All Categories</option>
               <option value="fiction">Fiction</option>
@@ -30,62 +55,71 @@
             </select>
           </div>
 
-          <div id="catalogue-list" class="book-grid">
-            <!-- Books rendered here -->
+          <div id="catalogue-list" class="book-grid" role="list" aria-label="Book catalogue">
+            <!-- Books rendered here dynamically -->
           </div>
 
-          <div id="book-details">
+          <div id="book-details" role="region" aria-live="polite" aria-label="Book details">
             <!-- Selected book details -->
           </div>
         </section>
 
+        <!-- Borrow Section -->
         <section id="borrow-section">
           <h2>Borrow a Book</h2>
-          <form id="borrow-form">
-            <input
-              type="text"
-              id="member-id"
-              placeholder="Member ID"
-              required
-            />
-            <input type="text" id="isbn" placeholder="ISBN" required />
+          
+          <form id="borrow-form" aria-labelledby="borrow-section">
+            <div class="form-group">
+              <label for="member-id">Member ID</label>
+              <input type="text" id="member-id" placeholder="Member ID" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="isbn">ISBN</label>
+              <input type="text" id="isbn" placeholder="ISBN" required />
+            </div>
+            
             <button type="submit">Borrow Book</button>
           </form>
         </section>
 
-        <section id="member-section" style="display: none">
+        <!-- Members Section -->
+        <section id="member-section" role="tabpanel" aria-labelledby="members-tab" hidden>
           <h2>Member Management</h2>
+          
           <div id="member-form">
             <!-- Member form rendered here -->
           </div>
-          <div id="member-list">
-            <!-- Members list -->
+          
+          <div id="member-list" role="list" aria-label="Members list">
+            <!-- Members list rendered here -->
           </div>
         </section>
 
-        <section id="statistics-section" style="display: none">
+        <!-- Statistics Section -->
+        <section id="statistics-section" role="tabpanel" aria-labelledby="statistics-tab" hidden>
           <h2>Library Statistics</h2>
+          
           <div class="stats-grid">
             <div class="stat-card">
               <h3>Total Books</h3>
-              <p class="total-books">0</p>
+              <p class="total-books" aria-live="polite">0</p>
             </div>
             <div class="stat-card">
               <h3>Total Members</h3>
-              <p class="total-members">0</p>
+              <p class="total-members" aria-live="polite">0</p>
             </div>
             <div class="stat-card">
               <h3>Books Borrowed</h3>
-              <p class="books-borrowed">0</p>
+              <p class="books-borrowed" aria-live="polite">0</p>
             </div>
           </div>
         </section>
       </main>
     </div>
 
-    <!-- Scripts in wrong order -->
-    <script src="ui.js"></script>
+    <!-- Scripts -->
     <script src="library.js"></script>
-    <!-- Missing: modules setup -->
+    <script src="ui.js"></script>
   </body>
 </html>
