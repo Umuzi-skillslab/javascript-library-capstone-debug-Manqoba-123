@@ -110,6 +110,7 @@ const formatBookLabel = ({ title, author }) => `${title.trim()} by ${author.trim
 
 const isBookAvailable = (book) => Boolean(book && book.availableCopies > 0);
 
+
 const computeLateFee = (daysLate, feePerDay = LATE_FEE_PER_DAY) => Math.max(0, daysLate * feePerDay);
 
 // ====================== LOCALSTORAGE ======================
@@ -243,10 +244,8 @@ function updateStatistics() {
     };
 }
 
-}
-
 loadFromLocalStorage();
-initializeSampleData();
+//nitializeSampleData();
 
 export {
     books,
