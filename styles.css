@@ -14,6 +14,12 @@
   box-sizing: border-box;
 }
 
+/* ====================== CRITICAL TAB VISIBILITY FIX ====================== */
+section[hidden],
+[hidden] {
+  display: none !important;
+}
+
 body {
   font-family: "Segoe UI", system-ui, sans-serif;
   background: linear-gradient(135deg, #1e1e1e 0%, #252525 100%);
@@ -107,25 +113,35 @@ h2 {
   padding-bottom: 0.8rem;
 }
 
-/* Stats Grid */
-.stats-grid {
+/* Stats & Book Grids */
+.stats-grid,
+.book-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
 }
 
-.stat-card {
+.stat-card,
+.book-card,
+.member-card {
   background: rgba(40, 40, 40, 0.9);
   padding: 1.6rem;
   border-radius: 14px;
-  text-align: center;
   transition: all 0.3s ease;
   border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
-.stat-card:hover {
+.stat-card:hover,
+.book-card:hover,
+.member-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 20px 40px rgba(212, 175, 55, 0.25);
+}
+
+.book-card button {
+  margin-top: 15px;
+  padding: 8px 18px;
+  font-size: 0.95rem;
 }
 
 /* Forms & Controls */
@@ -139,6 +155,7 @@ h2 {
 .form-group {
   flex: 1;
   min-width: 240px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
@@ -163,6 +180,7 @@ input:focus,
 select:focus {
   border-color: var(--mustard);
   box-shadow: 0 0 0 4px rgba(230, 184, 0, 0.2);
+  outline: none;
 }
 
 /* Buttons */
@@ -184,18 +202,12 @@ button:hover {
   box-shadow: 0 15px 35px rgba(212, 175, 55, 0.45);
 }
 
-/* ====================== FORM BUTTON SPACING FIX ====================== */
 form button {
   margin-top: 25px !important;
   display: block;
 }
 
-.form-group {
-  margin-bottom: 18px;
-}
-
 /* ====================== RESPONSIVE MEDIA QUERIES ====================== */
-/* Mobile Phones (Small) */
 @media (max-width: 480px) {
   .container {
     padding: 10px;
@@ -210,14 +222,12 @@ form button {
     padding: 10px 16px;
     font-size: 0.9rem;
   }
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
+  .stats-grid,
   .book-grid {
     grid-template-columns: 1fr;
   }
 }
-/* Tablets & Small Laptops */
+
 @media (max-width: 768px) {
   .controls {
     flex-direction: column;
@@ -229,7 +239,7 @@ form button {
     width: 100%;
   }
 }
-/* Large Laptops & Desktops */
+
 @media (min-width: 1024px) {
   .container {
     padding: 25px;
@@ -238,7 +248,7 @@ form button {
     padding: 2.8rem;
   }
 }
-/* Big Screens / TVs */
+
 @media (min-width: 1440px) {
   .container {
     max-width: 1600px;
@@ -255,7 +265,7 @@ form button {
     font-size: 1.15rem;
   }
 }
-/* Extra Large TVs / 4K */
+
 @media (min-width: 1920px) {
   .stats-grid {
     gap: 2.5rem;

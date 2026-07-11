@@ -1,3 +1,5 @@
+// ui.js - Handles DOM interactions, Event Delegation, and Modern UI Rendering
+
 import {
   books,
   members,
@@ -32,11 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     selectedTab.setAttribute('aria-selected', 'true');
-    
+
     sections.forEach(section => {
       if (section) section.hidden = true;
     });
-    
+
     const targetId = selectedTab.getAttribute('aria-controls');
     if (targetId) {
       const targetSection = document.getElementById(targetId);
@@ -50,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ====================== EVENT DELEGATION & LISTENERS ======================
   function setupEventListeners() {
-    
+
     tabs.forEach(tab => {
       tab.addEventListener('click', (event) => {
         event.preventDefault();
@@ -58,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    
     if (catalogueList !== null) {
       catalogueList.addEventListener('click', (event) => {
         const actionBtn = event.target.closest('.btn-quick-borrow');
@@ -83,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput !== null) {
       searchInput.addEventListener('input', debounce(handleSearch, 300));
     }
-    
+
     if (filterDropdown !== null) {
       filterDropdown.addEventListener('change', handleFilterChange);
     }
