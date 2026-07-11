@@ -9,7 +9,7 @@
     "test:coverage": "jest --coverage"
   },
   "keywords": ["library", "books", "javascript", "management"],
-  "author": "",
+  "author": "Manqoba Mlangeni",
   "license": "ISC",
   "devDependencies": {
     "jest": "^29.0.0"
