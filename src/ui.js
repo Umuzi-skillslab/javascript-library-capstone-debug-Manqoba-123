@@ -177,6 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize everything
     setupEventListeners();
-    loadCatalogue();           // Should be defined in library.js
+    loadCatalogue();           //It is defined in library.js
     updateStatisticsDisplay();
 });

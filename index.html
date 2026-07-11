@@ -72,7 +72,6 @@
       </header>
 
       <main>
-        <!-- Dashboard -->
         <section
           id="dashboard-section"
           role="tabpanel"
@@ -90,7 +89,7 @@
             </div>
             <div class="stat-card">
               <h3>Books Borrowed</h3>
-              <p class="books-borrowed">0</p>
+              <p class="borrowed-books">0</p>
             </div>
             <div class="stat-card">
               <h3>Overdue</h3>
@@ -99,7 +98,6 @@
           </div>
         </section>
 
-        <!-- Catalogue -->
         <section
           id="catalogue-section"
           role="tabpanel"
@@ -133,7 +131,6 @@
           <div id="book-details"></div>
         </section>
 
-        <!-- Borrow -->
         <section
           id="borrow-section"
           role="tabpanel"
@@ -143,18 +140,17 @@
           <h2>Borrow a Book</h2>
           <form id="borrow-form">
             <div class="form-group">
-              <label for="borrow-member-id">Member ID</label
-              ><input type="text" id="borrow-member-id" required />
+              <label for="borrow-member-id">Member ID</label>
+              <input type="text" id="borrow-member-id" required />
             </div>
             <div class="form-group">
-              <label for="borrow-isbn">ISBN</label
-              ><input type="text" id="borrow-isbn" required />
+              <label for="borrow-isbn">ISBN</label>
+              <input type="text" id="borrow-isbn" required />
             </div>
             <button type="submit">Borrow Book</button>
           </form>
         </section>
 
-        <!-- Returns -->
         <section
           id="returns-section"
           role="tabpanel"
@@ -164,19 +160,18 @@
           <h2>Return a Book</h2>
           <form id="return-form">
             <div class="form-group">
-              <label for="return-member-id">Member ID</label
-              ><input type="text" id="return-member-id" required />
+              <label for="return-member-id">Member ID</label>
+              <input type="text" id="return-member-id" required />
             </div>
             <div class="form-group">
-              <label for="return-isbn">ISBN</label
-              ><input type="text" id="return-isbn" required />
+              <label for="return-isbn">ISBN</label>
+              <input type="text" id="return-isbn" required />
             </div>
             <button type="submit">Process Return</button>
           </form>
           <div id="return-message"></div>
         </section>
 
-        <!-- Members -->
         <section
           id="member-section"
           role="tabpanel"
@@ -188,7 +183,6 @@
           <div id="member-list"></div>
         </section>
 
-        <!-- Manage Books -->
         <section
           id="manage-books-section"
           role="tabpanel"
@@ -198,16 +192,16 @@
           <h2>Manage Books</h2>
           <form id="add-book-form">
             <div class="form-group">
-              <label for="title">Title</label
-              ><input type="text" id="title" required />
+              <label for="title">Title</label>
+              <input type="text" id="title" required />
             </div>
             <div class="form-group">
-              <label for="author">Author</label
-              ><input type="text" id="author" required />
+              <label for="author">Author</label>
+              <input type="text" id="author" required />
             </div>
             <div class="form-group">
-              <label for="isbn">ISBN</label
-              ><input type="text" id="isbn" required />
+              <label for="isbn">ISBN</label>
+              <input type="text" id="isbn" required />
             </div>
             <div class="form-group">
               <label for="category">Category</label>
@@ -224,7 +218,6 @@
           </form>
         </section>
 
-        <!-- Statistics -->
         <section
           id="statistics-section"
           role="tabpanel"
@@ -232,14 +225,11 @@
           hidden
         >
           <h2>Library Statistics</h2>
-          <div class="stats-grid">
-            <!-- Populated by JS -->
-          </div>
+          <div class="stats-grid"></div>
         </section>
       </main>
     </div>
 
-    <script src="./src/library.js"></script>
-    <script src="./src/ui.js"></script>
+    <script type="module" src="./src/ui.js"></script>
   </body>
 </html>
