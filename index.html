@@ -1,118 +1,245 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Digital Library Management System" />
-  <title>Digital Library System</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>Digital Library System</h1>
-      <nav role="tablist" aria-label="Main navigation">
-        <button id="dashboard-tab" role="tab" aria-selected="true" aria-controls="dashboard-section">Dashboard</button>
-        <button id="catalogue-tab" role="tab" aria-selected="false" aria-controls="catalogue-section">Catalogue</button>
-        <button id="borrow-tab" role="tab" aria-selected="false" aria-controls="borrow-section">Borrow</button>
-        <button id="returns-tab" role="tab" aria-selected="false" aria-controls="returns-section">Returns</button>
-        <button id="members-tab" role="tab" aria-selected="false" aria-controls="member-section">Members</button>
-        <button id="manage-books-tab" role="tab" aria-selected="false" aria-controls="manage-books-section">Manage Books</button>
-        <button id="statistics-tab" role="tab" aria-selected="false" aria-controls="statistics-section">Statistics</button>
-      </nav>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Digital Library Management System" />
+    <title>Digital Library System</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Digital Library System</h1>
+        <nav role="tablist" aria-label="Main navigation">
+          <button
+            id="dashboard-tab"
+            role="tab"
+            aria-selected="true"
+            aria-controls="dashboard-section"
+          >
+            Dashboard
+          </button>
+          <button
+            id="catalogue-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="catalogue-section"
+          >
+            Catalogue
+          </button>
+          <button
+            id="borrow-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="borrow-section"
+          >
+            Borrow
+          </button>
+          <button
+            id="returns-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="returns-section"
+          >
+            Returns
+          </button>
+          <button
+            id="members-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="member-section"
+          >
+            Members
+          </button>
+          <button
+            id="manage-books-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="manage-books-section"
+          >
+            Manage Books
+          </button>
+          <button
+            id="statistics-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="statistics-section"
+          >
+            Statistics
+          </button>
+        </nav>
+      </header>
 
-    <main>
-      <!-- Dashboard -->
-      <section id="dashboard-section" role="tabpanel" aria-labelledby="dashboard-tab">
-        <h2>Dashboard</h2>
-        <div class="stats-grid">
-          <div class="stat-card"><h3>Total Books</h3><p class="total-books">0</p></div>
-          <div class="stat-card"><h3>Total Members</h3><p class="total-members">0</p></div>
-          <div class="stat-card"><h3>Books Borrowed</h3><p class="books-borrowed">0</p></div>
-          <div class="stat-card"><h3>Overdue</h3><p class="overdue-count" style="color:#ff6b6b;">0</p></div>
-        </div>
-      </section>
-
-      <!-- Catalogue -->
-      <section id="catalogue-section" role="tabpanel" aria-labelledby="catalogue-tab" hidden>
-        <h2>Catalogue</h2>
-        <div class="controls">
-          <div class="form-group">
-            <label for="search">Search</label>
-            <input type="text" id="search" placeholder="Search by title, author..." />
+      <main>
+        <!-- Dashboard -->
+        <section
+          id="dashboard-section"
+          role="tabpanel"
+          aria-labelledby="dashboard-tab"
+        >
+          <h2>Dashboard</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>Total Books</h3>
+              <p class="total-books">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Total Members</h3>
+              <p class="total-members">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Books Borrowed</h3>
+              <p class="books-borrowed">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Overdue</h3>
+              <p class="overdue-count" style="color: #ff6b6b">0</p>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="filter-category">Category</label>
-            <select id="filter-category">
-              <option value="all">All Categories</option>
-              <option value="fiction">Fiction</option>
-              <option value="non-fiction">Non-Fiction</option>
-              <option value="reference">Reference</option>
-            </select>
+        </section>
+
+        <!-- Catalogue -->
+        <section
+          id="catalogue-section"
+          role="tabpanel"
+          aria-labelledby="catalogue-tab"
+          hidden
+        >
+          <h2>Catalogue</h2>
+          <div class="controls">
+            <div class="form-group">
+              <label for="search">Search</label>
+              <input
+                type="text"
+                id="search"
+                placeholder="Search by title, author..."
+              />
+            </div>
+            <div class="form-group">
+              <label for="filter-category">Category</label>
+              <select id="filter-category">
+                <option value="all">All Categories</option>
+                <option value="fiction">Fiction</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="drama">Drama</option>
+                <option value="educational">Educational</option>
+                <option value="kids">Kids</option>
+                <option value="reference">Reference</option>
+              </select>
+            </div>
           </div>
-        </div>
-        <div id="catalogue-list" class="book-grid" role="list"></div>
-        <div id="book-details"></div>
-      </section>
+          <div id="catalogue-list" class="book-grid" role="list"></div>
+          <div id="book-details"></div>
+        </section>
 
-      <!-- Borrow -->
-      <section id="borrow-section" role="tabpanel" aria-labelledby="borrow-tab" hidden>
-        <h2>Borrow a Book</h2>
-        <form id="borrow-form">
-          <div class="form-group"><label for="borrow-member-id">Member ID</label><input type="text" id="borrow-member-id" required></div>
-          <div class="form-group"><label for="borrow-isbn">ISBN</label><input type="text" id="borrow-isbn" required></div>
-          <button type="submit">Borrow Book</button>
-        </form>
-      </section>
+        <!-- Borrow -->
+        <section
+          id="borrow-section"
+          role="tabpanel"
+          aria-labelledby="borrow-tab"
+          hidden
+        >
+          <h2>Borrow a Book</h2>
+          <form id="borrow-form">
+            <div class="form-group">
+              <label for="borrow-member-id">Member ID</label
+              ><input type="text" id="borrow-member-id" required />
+            </div>
+            <div class="form-group">
+              <label for="borrow-isbn">ISBN</label
+              ><input type="text" id="borrow-isbn" required />
+            </div>
+            <button type="submit">Borrow Book</button>
+          </form>
+        </section>
 
-      <!-- Returns -->
-      <section id="returns-section" role="tabpanel" aria-labelledby="returns-tab" hidden>
-        <h2>Return a Book</h2>
-        <form id="return-form">
-          <div class="form-group"><label for="return-member-id">Member ID</label><input type="text" id="return-member-id" required></div>
-          <div class="form-group"><label for="return-isbn">ISBN</label><input type="text" id="return-isbn" required></div>
-          <button type="submit">Process Return</button>
-        </form>
-        <div id="return-message"></div>
-      </section>
+        <!-- Returns -->
+        <section
+          id="returns-section"
+          role="tabpanel"
+          aria-labelledby="returns-tab"
+          hidden
+        >
+          <h2>Return a Book</h2>
+          <form id="return-form">
+            <div class="form-group">
+              <label for="return-member-id">Member ID</label
+              ><input type="text" id="return-member-id" required />
+            </div>
+            <div class="form-group">
+              <label for="return-isbn">ISBN</label
+              ><input type="text" id="return-isbn" required />
+            </div>
+            <button type="submit">Process Return</button>
+          </form>
+          <div id="return-message"></div>
+        </section>
 
-      <!-- Members -->
-      <section id="member-section" role="tabpanel" aria-labelledby="members-tab" hidden>
-        <h2>Member Management</h2>
-        <div id="member-form"></div>
-        <div id="member-list"></div>
-      </section>
+        <!-- Members -->
+        <section
+          id="member-section"
+          role="tabpanel"
+          aria-labelledby="members-tab"
+          hidden
+        >
+          <h2>Member Management</h2>
+          <div id="member-form"></div>
+          <div id="member-list"></div>
+        </section>
 
-      <!-- Manage Books -->
-      <section id="manage-books-section" role="tabpanel" aria-labelledby="manage-books-tab" hidden>
-        <h2>Manage Books</h2>
-        <form id="add-book-form">
-          <div class="form-group"><label for="title">Title</label><input type="text" id="title" required></div>
-          <div class="form-group"><label for="author">Author</label><input type="text" id="author" required></div>
-          <div class="form-group"><label for="isbn">ISBN</label><input type="text" id="isbn" required></div>
-          <div class="form-group"><label for="category">Category</label>
-            <select id="category">
-              <option value="fiction">Fiction</option>
-              <option value="non-fiction">Non-Fiction</option>
-              <option value="reference">Reference</option>
-            </select>
+        <!-- Manage Books -->
+        <section
+          id="manage-books-section"
+          role="tabpanel"
+          aria-labelledby="manage-books-tab"
+          hidden
+        >
+          <h2>Manage Books</h2>
+          <form id="add-book-form">
+            <div class="form-group">
+              <label for="title">Title</label
+              ><input type="text" id="title" required />
+            </div>
+            <div class="form-group">
+              <label for="author">Author</label
+              ><input type="text" id="author" required />
+            </div>
+            <div class="form-group">
+              <label for="isbn">ISBN</label
+              ><input type="text" id="isbn" required />
+            </div>
+            <div class="form-group">
+              <label for="category">Category</label>
+              <select id="category">
+                <option value="fiction">Fiction</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="drama">Drama</option>
+                <option value="educational">Educational</option>
+                <option value="kids">Kids</option>
+                <option value="reference">Reference</option>
+              </select>
+            </div>
+            <button type="submit">Add New Book</button>
+          </form>
+        </section>
+
+        <!-- Statistics -->
+        <section
+          id="statistics-section"
+          role="tabpanel"
+          aria-labelledby="statistics-tab"
+          hidden
+        >
+          <h2>Library Statistics</h2>
+          <div class="stats-grid">
+            <!-- Populated by JS -->
           </div>
-          <button type="submit">Add New Book</button>
-        </form>
-      </section>
+        </section>
+      </main>
+    </div>
 
-      <!-- Statistics -->
-      <section id="statistics-section" role="tabpanel" aria-labelledby="statistics-tab" hidden>
-        <h2>Library Statistics</h2>
-        <div class="stats-grid">
-          <!-- Populated by JS -->
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <script src="./src/library.js"></script>
-  <script src="./src/ui.js"></script>
-</body>
+    <script src="./src/library.js"></script>
+    <script src="./src/ui.js"></script>
+  </body>
 </html>
