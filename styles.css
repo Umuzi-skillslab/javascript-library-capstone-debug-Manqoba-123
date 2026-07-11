@@ -1,4 +1,4 @@
-/* ====================== DIGITAL LIBRARY CSS - GOLD & MUSTARD THEME ====================== */
+/* ====================== DIGITAL LIBRARY CSS ====================== */
 :root {
   --primary-gold: #d4af37;
   --mustard: #e6b800;
@@ -67,26 +67,24 @@ nav button {
   font-size: clamp(0.95rem, 2.5vw, 1.1rem);
   position: relative;
   overflow: hidden;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6); /* Added for solid text */
 }
 
-/* Hover Effect - Gradient */
 nav button:hover {
   border-color: var(--mustard);
   background: linear-gradient(to right, #1e1e1e, #d4af37);
   color: #1e1e1e;
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(212, 175, 55, 0.35);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); /* Only on hover */
 }
 
-/* Selected State - Gradient Black to Gold */
 nav button[aria-selected="true"] {
   background: linear-gradient(to right, #1e1e1e 0%, #d4af37 100%);
   color: #1e1e1e;
   border-color: var(--primary-gold);
   box-shadow: 0 10px 25px rgba(212, 175, 55, 0.5);
   font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); /* Only when selected */
 }
 
 /* ====================== SECTIONS ====================== */
@@ -177,7 +175,6 @@ button {
   cursor: pointer;
   box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
   transition: all 0.3s ease;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Added for solid text */
 }
 
 button:hover {
