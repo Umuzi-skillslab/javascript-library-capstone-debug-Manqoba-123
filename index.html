@@ -102,6 +102,67 @@
               <p class="overdue-count" style="color: #ff6b6b">0</p>
             </div>
           </div>
+          <div id="advanced-tools-panel" class="advanced-tools-panel">
+            <h3> Advanced Management Console</h3>
+
+            <div class="console-section">
+              <h4>1. Multi-Criteria Advanced Book Search</h4>
+              <div class="console-flex-row">
+                <input
+                  type="text"
+                  id="adv-author-input"
+                  class="console-input"
+                  placeholder="Filter by Author..."
+                />
+                <select id="adv-category-input" class="console-select">
+                  <option value="">All Categories</option>
+                  <option value="fiction">Fiction</option>
+                  <option value="Non-Fiction">Non-Fiction</option>
+                  <option value="educational">Educational</option>
+                  <option value="Drama">Drama</option>
+                  <option value="Kids">Kids</option>
+                </select>
+                <button
+                  id="btn-adv-search"
+                  type="button"
+                  class="btn-console-search"
+                >
+                  Execute Search
+                </button>
+              </div>
+            </div>
+
+            <div class="console-section">
+              <h4>2. Member Fine & Recursive Overdue Audit</h4>
+              <div class="console-flex-row">
+                <input
+                  type="text"
+                  id="calc-member-id"
+                  class="console-input"
+                  placeholder="Enter Member ID..."
+                />
+                <button
+                  id="btn-calc-fines"
+                  type="button"
+                  class="btn-console-calc"
+                >
+                  Calculate Overdue Fines
+                </button>
+              </div>
+              <div id="fine-report-output" class="fine-report-output"></div>
+            </div>
+
+            <div>
+              <h4>3. Batch Data Importer</h4>
+              <button
+                id="btn-batch-demo"
+                type="button"
+                class="btn-console-batch"
+              >
+                Import Demo Collections
+              </button>
+            </div>
+          </div>
         </section>
 
         <section
