@@ -1,4 +1,4 @@
-// Core data stores
+// Local state stores for the application
 let books = [];
 let members = [];
 let loans = [];
@@ -6,7 +6,7 @@ let loans = [];
 const LATE_FEE_PER_DAY = 0.50;
 const MAX_BOOKS_PER_MEMBER = 5;
 
-// Base Book Class
+// Base Book Class representing library inventory
 class Book {
     constructor(isbn, title, author, category, availableCopies = 1, totalCopies = 1) {
         if (!isbn || typeof isbn !== 'string') throw new TypeError('Valid ISBN string is required.');
@@ -23,7 +23,7 @@ class Book {
     }
 }
 
-// DigitalBook Subclass
+// Subclass for digital inventory with unlimited availability
 class DigitalBook extends Book {
     constructor(isbn, title, author, category, downloadUrl, fileSizeMB) {
         super(isbn, title, author, category, Infinity, Infinity);
@@ -32,7 +32,7 @@ class DigitalBook extends Book {
     }
 }
 
-// Base Member Class
+// Member profile tracking borrowed items and borrowing eligibility
 class Member {
     constructor(id, name, email, joinDate = new Date().toISOString()) {
         if (!id || typeof id !== 'string') throw new TypeError('Valid Member ID required.');
@@ -54,7 +54,7 @@ class Member {
     }
 }
 
-// PremiumMember Subclass
+// Subclass for members with higher borrowing limits
 class PremiumMember extends Member {
     constructor(id, name, email, joinDate, maxLimit = 10) {
         super(id, name, email, joinDate);
@@ -66,6 +66,7 @@ class PremiumMember extends Member {
     }
 }
 
+// Statistical aggregates for reporting
 const LibraryStats = {
     getTotalBooksCount(bookList = []) {
         return bookList.reduce((acc, book) => acc + (book.totalCopies || 1), 0);
@@ -74,17 +75,19 @@ const LibraryStats = {
         return loanList.length;
     },
     getMemberBorrowingRate(memberList = []) {
-        if (!memberList.length) return 0;
-        const totalBorrowed = memberList.reduce((acc, m) => acc + m.borrowedBooks.length, 0);
+        if (!memberList.length) return '0.00';
+        const totalBorrowed = memberList.reduce((acc, m) => acc + (m.borrowedBooks ? m.borrowedBooks.length : 0), 0);
         return (totalBorrowed / memberList.length).toFixed(2);
     }
 };
 
+// Recursive fee calculation for overdue returns
 function calculateRecursiveFine(daysOverdue, rate = LATE_FEE_PER_DAY) {
     if (typeof daysOverdue !== 'number' || daysOverdue <= 0) return 0;
     return rate + calculateRecursiveFine(daysOverdue - 1, rate);
 }
 
+// Deep search across nested category trees
 function findCategoryDeep(categoryTree, targetCategory) {
     if (!categoryTree || typeof categoryTree !== 'object') return null;
     if (categoryTree.name === targetCategory) return categoryTree;
@@ -103,7 +106,15 @@ const formatBookLabel = ({ title, author }) => `${title.trim()} by ${author.trim
 const isBookAvailable = (book) => Boolean(book && book.availableCopies > 0);
 const computeLateFee = (daysLate, feePerDay = LATE_FEE_PER_DAY) => Math.max(0, daysLate * feePerDay);
 
-// Sync with browser storage so data persists across reloads
+// Converts millisecond differences into standard day counts
+function calculateLoanDurationDays(borrowDate, returnDate = new Date()) {
+    const start = new Date(borrowDate).getTime();
+    const end = new Date(returnDate).getTime();
+    const diffInMs = Math.max(0, end - start);
+    return Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+}
+
+// Persist operational state to browser LocalStorage
 function saveToLocalStorage() {
     try {
         localStorage.setItem('libraryBooks', JSON.stringify(books));
@@ -114,13 +125,13 @@ function saveToLocalStorage() {
     }
 }
 
+// Re-hydrate stored JSON objects back into active Class instances
 function loadFromLocalStorage() {
     try {
         const savedBooks = localStorage.getItem('libraryBooks');
         const savedMembers = localStorage.getItem('libraryMembers');
         const savedLoans = localStorage.getItem('libraryLoans');
 
-        // Reconstruct saved objects so instance methods like canBorrow() work properly
         if (savedBooks !== null) {
             const rawBooks = JSON.parse(savedBooks);
             books = rawBooks.map(b => new Book(b.isbn, b.title, b.author, b.category, b.availableCopies, b.totalCopies));
@@ -139,7 +150,7 @@ function loadFromLocalStorage() {
     }
 }
 
-// Update existing stock if ISBN exists, otherwise register a new title
+// Increases copy count if ISBN exists, otherwise creates a new entry
 function addNewBook(bookData = {}) {
     try {
         const { isbn, title, author, category, totalCopies = 1 } = bookData;
@@ -163,7 +174,7 @@ function addNewBook(bookData = {}) {
     }
 }
 
-// Register a new library member
+// Registers a new user if the member ID is unique
 function addNewMember(memberData = {}) {
     try {
         const { id, name, email } = memberData;
@@ -182,7 +193,8 @@ function addNewMember(memberData = {}) {
     }
 }
 
-function borrowBook(memberId, isbn) {
+// Accepts user-specified take date and expected due date for loan record creation
+function borrowBook(memberId, isbn, borrowDate = new Date().toISOString(), dueDate = null) {
     if (typeof memberId !== 'string' || typeof isbn !== 'string') return false;
 
     const member = members.find(m => m.id === memberId);
@@ -194,31 +206,49 @@ function borrowBook(memberId, isbn) {
     book.availableCopies -= 1;
     member.borrowedBooks.push(isbn);
 
+    // Default due date to 14 days after borrow date if not provided
+    const parsedBorrowDate = new Date(borrowDate);
+    const parsedDueDate = dueDate
+        ? new Date(dueDate).toISOString()
+        : new Date(parsedBorrowDate.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
+
     loans.push({
         memberId,
         isbn,
-        borrowDate: new Date().toISOString()
+        borrowDate: parsedBorrowDate.toISOString(),
+        dueDate: parsedDueDate
     });
 
     saveToLocalStorage();
     return true;
 }
 
-function returnBook(memberId, isbn) {
-    if (typeof memberId !== 'string' || typeof isbn !== 'string') return false;
+// Restores book copy, removes active loan record, and returns loan summary metrics
+function returnBook(memberId, isbn, returnDate = new Date().toISOString()) {
+    if (typeof memberId !== 'string' || typeof isbn !== 'string') return null;
 
     const member = members.find(m => m.id === memberId);
     const book = books.find(b => b.isbn === isbn);
+    const loanIndex = loans.findIndex(l => l.memberId === memberId && l.isbn === isbn);
 
-    if (!member || !book) return false;
+    if (!member || !book || loanIndex === -1) return null;
+
+    const loan = loans[loanIndex];
+    const durationDays = calculateLoanDurationDays(loan.borrowDate, returnDate);
 
     book.availableCopies = Math.min(book.totalCopies, book.availableCopies + 1);
 
     member.borrowedBooks = member.borrowedBooks.filter(bIsbn => bIsbn !== isbn);
-    loans = loans.filter(l => !(l.memberId === memberId && l.isbn === isbn));
+    loans.splice(loanIndex, 1);
 
     saveToLocalStorage();
-    return true;
+
+    return {
+        success: true,
+        borrowDate: loan.borrowDate,
+        returnDate,
+        durationDays
+    };
 }
 
 function loadCatalogue() {
@@ -239,22 +269,25 @@ function searchBooksAdvanced(...criteriaPredicates) {
     return books.filter(book => criteriaPredicates.every(predicate => predicate(book)));
 }
 
+// Evaluates overall collection metrics and checks for overdue items against loan due dates
 function updateStatistics() {
     const totalBooks = LibraryStats.getTotalBooksCount(books);
     const totalMembers = members.length;
     const borrowedBooksCount = books.reduce((acc, b) => acc + (b.totalCopies - b.availableCopies), 0);
-    const hasOverdueLoans = loans.some(l => (new Date() - new Date(l.borrowDate)) > 14 * 86400000);
-    const allMembersActive = members.every(m => m.borrowedBooks.length >= 0);
+    const hasOverdueLoans = loans.some(l => {
+        const dueDate = l.dueDate ? new Date(l.dueDate) : new Date(new Date(l.borrowDate).getTime() + 14 * 86400000);
+        return new Date() > dueDate;
+    });
 
     return {
         totalBooks,
         totalMembers,
         borrowedBooks: borrowedBooksCount,
-        hasOverdueLoans,
-        allMembersActive
+        hasOverdueLoans
     };
 }
 
+// Initial state recovery on script load
 loadFromLocalStorage();
 
 export {
@@ -268,6 +301,7 @@ export {
     LibraryStats,
     calculateRecursiveFine,
     findCategoryDeep,
+    calculateLoanDurationDays,
     addNewBook,
     addNewMember,
     borrowBook,
