@@ -207,6 +207,56 @@ form button {
   display: block;
 }
 
+/* Styling for the animated Book of the Day box */
+.book-of-the-day-container {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.15),
+    rgba(168, 85, 247, 0.15)
+  );
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.botd-label {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #c084fc;
+  margin-bottom: 0.5rem;
+}
+
+.typewriter-box {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #f4f4f5;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Blinking cursor effect */
+.cursor {
+  font-weight: 300;
+  color: #a855f7;
+  margin-left: 2px;
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
 /* ====================== RESPONSIVE MEDIA QUERIES ====================== */
 @media (max-width: 480px) {
   .container {

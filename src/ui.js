@@ -31,7 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const memberListEl = document.getElementById('member-list');
   const detailedStatsGrid = document.getElementById('detailed-stats-grid');
 
-  // Pre-fill borrow date fields with defaults (Today and Today + 14 Days)
+  // Typewriter animation state variables
+  let typewriterTextEl = document.getElementById('typewriter-text');
+  let currentBookIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let typewriterTimeout = null;
+
+  // Pre-fill borrow date fields with defaults
   function setDefaultBorrowDates() {
     const today = new Date();
     const fourteenDays = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
@@ -40,7 +47,48 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dueDateInput) dueDateInput.value = fourteenDays.toISOString().split('T')[0];
   }
 
-  // Handles accessible tab switching and triggers UI metric updates
+  // Typewriter animation engine
+  function startBookOfTheDayAnimation() {
+    if (!typewriterTextEl) return;
+
+    // Default fallback text if catalog is empty
+    const availableBooks = books.length > 0 
+      ? books.map(b => `"${b.title}" — by ${b.author}`)
+      : ['"The Great Gatsby" — by F. Scott Fitzgerald', '"1984" — by George Orwell', '"To Kill a Mockingbird" — by Harper Lee'];
+
+    const currentText = availableBooks[currentBookIndex % availableBooks.length];
+
+    if (!isDeleting) {
+      // Typing mode
+      typewriterTextEl.textContent = currentText.substring(0, charIndex + 1);
+      charIndex++;
+
+      if (charIndex === currentText.length) {
+        // Pause when full title is typed
+        isDeleting = true;
+        typewriterTimeout = setTimeout(startBookOfTheDayAnimation, 2500);
+        return;
+      }
+    } else {
+      // Deleting mode
+      typewriterTextEl.textContent = currentText.substring(0, charIndex - 1);
+      charIndex--;
+
+      if (charIndex === 0) {
+        // Move to next book when text is completely erased
+        isDeleting = false;
+        currentBookIndex = (currentBookIndex + 1) % availableBooks.length;
+        typewriterTimeout = setTimeout(startBookOfTheDayAnimation, 500);
+        return;
+      }
+    }
+
+    // Set speed: faster erasing (40ms), realistic typing (90ms)
+    const speed = isDeleting ? 40 : 90;
+    typewriterTimeout = setTimeout(startBookOfTheDayAnimation, speed);
+  }
+
+  // Handles tab switching
   function switchTab(selectedTab) {
     if (!selectedTab) return;
 
@@ -60,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStatisticsDisplay();
   }
 
-  // Bind click, submit, and keyboard handlers
+  // Event Listeners setup
   function setupEventListeners() {
     tabs.forEach(tab => {
       tab.addEventListener('click', (e) => {
@@ -69,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Support keyboard navigation across tabs
     const mainNav = document.querySelector('nav');
     if (mainNav) {
       mainNav.addEventListener('keydown', (e) => {
@@ -77,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Event delegation for catalogue interaction
     if (catalogueList) {
       catalogueList.addEventListener('click', (e) => {
         const actionBtn = e.target.closest('.btn-quick-borrow');
@@ -96,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addMemberForm) addMemberForm.addEventListener('submit', handleAddMemberSubmit);
   }
 
-  // Process loan submission with user-selected dates
   function handleBorrowSubmit(e) {
     e.preventDefault();
     const memberId = document.getElementById('borrow-member-id')?.value.trim();
@@ -123,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Process item return and output time duration summary
   function handleReturnSubmit(e) {
     e.preventDefault();
     const memberId = document.getElementById('return-member-id')?.value.trim();
@@ -157,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Add inventory with explicit copy quantities
   function handleAddBookSubmit(e) {
     e.preventDefault();
     const title = document.getElementById('title')?.value.trim();
@@ -179,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Register new library user profile
   function handleAddMemberSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('member-id')?.value.trim();
@@ -198,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Live client-side search across book attributes
   function handleSearch() {
     if (!searchInput) return;
     const term = searchInput.value.toLowerCase().trim();
@@ -210,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBookCatalogue(filtered);
   }
 
-  // Filter book display by selected category
   function handleFilterChange() {
     if (!filterDropdown) return;
     const category = filterDropdown.value;
@@ -218,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBookCatalogue(category === 'all' ? catalogue : catalogue.filter(b => b.category === category));
   }
 
-  // Render book grid cards in Catalogue tab
   function renderBookCatalogue(bookList = []) {
     if (!catalogueList) return;
     catalogueList.innerHTML = '';
@@ -243,7 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Render members and calculate live countdown timers based on custom loan dates
   function renderMemberList() {
     if (!memberListEl) return;
     memberListEl.innerHTML = '';
@@ -259,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const memberLoans = loans.filter(l => l.memberId === id);
 
-      // Construct inline active loan status badges with custom date calculations
       let loansHtml = '';
       if (memberLoans.length > 0) {
         loansHtml = memberLoans.map(loan => {
@@ -267,20 +304,19 @@ document.addEventListener('DOMContentLoaded', () => {
           const title = book ? book.title : loan.isbn;
 
           const takeDate = new Date(loan.borrowDate);
-          const dueDate = loan.dueDate
-            ? new Date(loan.dueDate)
+          const dueDate = loan.dueDate 
+            ? new Date(loan.dueDate) 
             : new Date(takeDate.getTime() + 14 * 24 * 60 * 60 * 1000);
-
+            
           const now = new Date();
 
-          // Calculate remaining time against expected due date
           const diffInMs = dueDate.getTime() - now.getTime();
           const daysLeft = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
 
           const isOverdue = daysLeft < 0;
           const statusColor = isOverdue ? '#f87171' : daysLeft <= 3 ? '#fbbf24' : '#4ade80';
-          const statusText = isOverdue
-            ? `OVERDUE by ${Math.abs(daysLeft)} day(s)`
+          const statusText = isOverdue 
+            ? `OVERDUE by ${Math.abs(daysLeft)} day(s)` 
             : `${daysLeft} day(s) remaining`;
 
           return `
@@ -308,7 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Refresh status widgets on Dashboard and build dynamic cards in Statistics Tab
   function updateStatisticsDisplay() {
     const stats = updateStatistics();
 
@@ -355,7 +390,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Throttle search input execution for performance
   function debounce(func, delay = 300) {
     let timeout;
     return (...args) => {
@@ -374,4 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBookCatalogue(loadCatalogue());
   renderMemberList();
   updateStatisticsDisplay();
+
+  // Boot typewriter animation
+  startBookOfTheDayAnimation();
 });
