@@ -2,6 +2,7 @@ import {
   books,
   members,
   addNewBook,
+  addNewMember,
   borrowBook,
   returnBook,
   loadCatalogue,
@@ -20,16 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const borrowForm = document.getElementById('borrow-form');
   const returnForm = document.getElementById('return-form');
   const addBookForm = document.getElementById('add-book-form');
+  const addMemberForm = document.getElementById('add-member-form');
   const memberListEl = document.getElementById('member-list');
 
-  // ====================== TAB SWITCHING ======================
+  // Toggle active tab accessibility attributes and match visible section
   function switchTab(selectedTab) {
     if (!selectedTab) return;
 
-    tabs.forEach(tab => {
-      tab.setAttribute('aria-selected', 'false');
-    });
-
+    tabs.forEach(tab => tab.setAttribute('aria-selected', 'false'));
     selectedTab.setAttribute('aria-selected', 'true');
 
     sections.forEach(section => {
@@ -39,149 +38,97 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetId = selectedTab.getAttribute('aria-controls');
     if (targetId) {
       const targetSection = document.getElementById(targetId);
-      if (targetSection) {
-        targetSection.removeAttribute('hidden');
-      } else {
-        console.warn(`No section found matching ID: "${targetId}"`);
-      }
+      if (targetSection) targetSection.removeAttribute('hidden');
     }
   }
 
-  // ====================== EVENT DELEGATION & LISTENERS ======================
   function setupEventListeners() {
-    // Tab Button Clicks
     tabs.forEach(tab => {
-      tab.addEventListener('click', (event) => {
-        event.preventDefault();
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
         switchTab(tab);
       });
     });
-
-    if (catalogueList !== null) {
-      catalogueList.addEventListener('click', (event) => {
-        const actionBtn = event.target.closest('.btn-quick-borrow');
-        if (actionBtn) {
-          const isbn = actionBtn.dataset.isbn;
-          if (isbn) {
-            alert(`Quick borrow requested for ISBN: ${isbn}`);
-          }
-        }
-      });
-    }
-
+    
     const mainNav = document.querySelector('nav');
-    if (mainNav !== null) {
-      mainNav.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && event.target.tagName === 'BUTTON') {
-          switchTab(event.target);
+    if (mainNav) {
+      mainNav.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.tagName === 'BUTTON') switchTab(e.target);
+      });
+    }
+
+    if (catalogueList) {
+      catalogueList.addEventListener('click', (e) => {
+        const actionBtn = e.target.closest('.btn-quick-borrow');
+        if (actionBtn && actionBtn.dataset.isbn) {
+          alert(`Quick borrow requested for ISBN: ${actionBtn.dataset.isbn}`);
         }
       });
     }
 
-    if (searchInput !== null) {
-      searchInput.addEventListener('input', debounce(handleSearch, 300));
-    }
+    if (searchInput) searchInput.addEventListener('input', debounce(handleSearch, 300));
+    if (filterDropdown) filterDropdown.addEventListener('change', handleFilterChange);
 
-    // Category Filter dropdown
-    if (filterDropdown !== null) {
-      filterDropdown.addEventListener('change', handleFilterChange);
-    }
-
-    // Forms
-    if (borrowForm !== null) {
-      borrowForm.addEventListener('submit', handleBorrowSubmit);
-    }
-
-    if (returnForm !== null) {
-      returnForm.addEventListener('submit', handleReturnSubmit);
-    }
-
-    if (addBookForm !== null) {
-      addBookForm.addEventListener('submit', handleAddBookSubmit);
-    }
+    if (borrowForm) borrowForm.addEventListener('submit', handleBorrowSubmit);
+    if (returnForm) returnForm.addEventListener('submit', handleReturnSubmit);
+    if (addBookForm) addBookForm.addEventListener('submit', handleAddBookSubmit);
+    if (addMemberForm) addMemberForm.addEventListener('submit', handleAddMemberSubmit);
   }
 
-  // ====================== FORM HANDLERS ======================
   function handleBorrowSubmit(e) {
     e.preventDefault();
-    const memberIdEl = document.getElementById('borrow-member-id');
-    const isbnEl = document.getElementById('borrow-isbn');
+    const memberId = document.getElementById('borrow-member-id')?.value.trim();
+    const isbn = document.getElementById('borrow-isbn')?.value.trim();
 
-    if (!memberIdEl || !isbnEl) return;
+    if (!memberId || !isbn) return;
 
-    const memberId = memberIdEl.value.trim();
-    const isbn = isbnEl.value.trim();
-
-    if (!memberId || !isbn) {
-      alert('Please fill in all fields.');
-      return;
-    }
-
-    const success = borrowBook(memberId, isbn);
-    if (success) {
+    if (borrowBook(memberId, isbn)) {
       alert('Book borrowed successfully!');
       borrowForm.reset();
       updateStatisticsDisplay();
       renderBookCatalogue(loadCatalogue());
+      renderMemberList();
     } else {
-      alert('Failed to borrow book. Check member ID, book availability, or limits.');
+      alert('Failed to borrow. Double-check member ID, book availability, or borrowing limits.');
     }
   }
 
   function handleReturnSubmit(e) {
     e.preventDefault();
-    const memberIdEl = document.getElementById('return-member-id');
-    const isbnEl = document.getElementById('return-isbn');
+    const memberId = document.getElementById('return-member-id')?.value.trim();
+    const isbn = document.getElementById('return-isbn')?.value.trim();
     const messageEl = document.getElementById('return-message');
-
-    if (!memberIdEl || !isbnEl) return;
-
-    const memberId = memberIdEl.value.trim();
-    const isbn = isbnEl.value.trim();
 
     if (!memberId || !isbn) return;
 
     const success = returnBook(memberId, isbn);
+    if (messageEl) {
+      messageEl.innerHTML = success
+        ? `<p style="color: #4ade80;">Book returned successfully!</p>`
+        : `<p style="color: #f87171;">Failed to process return. Check member ID and ISBN.</p>`;
+    }
 
-    if (messageEl !== null) {
-      if (success) {
-        messageEl.innerHTML = `<p style="color: #4ade80;">Book returned successfully!</p>`;
-        returnForm.reset();
-        updateStatisticsDisplay();
-        renderBookCatalogue(loadCatalogue());
-      } else {
-        messageEl.innerHTML = `<p style="color: #f87171;">Failed to process return.</p>`;
-      }
+    if (success) {
+      returnForm.reset();
+      updateStatisticsDisplay();
+      renderBookCatalogue(loadCatalogue());
+      renderMemberList();
     }
   }
 
   function handleAddBookSubmit(e) {
     e.preventDefault();
-    const titleEl = document.getElementById('title');
-    const authorEl = document.getElementById('author');
-    const isbnEl = document.getElementById('isbn');
-    const categoryEl = document.getElementById('category');
-    const copiesEl = document.getElementById('copies');
+    const title = document.getElementById('title')?.value.trim();
+    const author = document.getElementById('author')?.value.trim();
+    const isbn = document.getElementById('isbn')?.value.trim();
+    const category = document.getElementById('category')?.value;
+    const copiesInput = document.getElementById('copies');
+    const totalCopies = parseInt(copiesInput?.value, 10) || 1;
 
-    if (!titleEl || !authorEl || !isbnEl || !categoryEl || !copiesEl) return;
-
-    const totalCopies = parseInt(copiesEl.value, 10) || 1;
-
-    const bookPayload = {
-      title: titleEl.value.trim(),
-      author: authorEl.value.trim(),
-      isbn: isbnEl.value.trim(),
-      category: categoryEl.value,
-      totalCopies: totalCopies
-    };
-
-    if (bookPayload.title && bookPayload.author && bookPayload.isbn) {
-      const success = addNewBook(bookPayload);
-      if (success) {
-        alert(`Successfully added ${totalCopies} copies of "${bookPayload.title}"!`);
+    if (title && author && isbn) {
+      if (addNewBook({ title, author, isbn, category, totalCopies })) {
+        alert(`Successfully added ${totalCopies} copies of "${title}"!`);
         addBookForm.reset();
-
-        const copiesInput = document.getElementById('copies');
         if (copiesInput) copiesInput.value = 1;
 
         renderBookCatalogue(loadCatalogue());
@@ -190,18 +137,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ====================== SEARCH & FILTER ======================
+  function handleAddMemberSubmit(e) {
+    e.preventDefault();
+    const id = document.getElementById('member-id')?.value.trim();
+    const name = document.getElementById('member-name')?.value.trim();
+    const email = document.getElementById('member-email')?.value.trim();
+
+    if (id && name) {
+      if (addNewMember({ id, name, email })) {
+        alert(`Member "${name}" registered successfully!`);
+        addMemberForm.reset();
+        renderMemberList();
+        updateStatisticsDisplay();
+      } else {
+        alert('Could not register member. That ID might already exist.');
+      }
+    }
+  }
+
   function handleSearch() {
     if (!searchInput) return;
     const term = searchInput.value.toLowerCase().trim();
-    const catalogue = loadCatalogue();
-
-    const filtered = catalogue.filter(({ title, author, isbn }) =>
+    const filtered = loadCatalogue().filter(({ title, author, isbn }) =>
       title.toLowerCase().includes(term) ||
       author.toLowerCase().includes(term) ||
       isbn.toLowerCase().includes(term)
     );
-
     renderBookCatalogue(filtered);
   }
 
@@ -209,18 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!filterDropdown) return;
     const category = filterDropdown.value;
     const catalogue = loadCatalogue();
-
-    const filtered = category === 'all'
-      ? catalogue
-      : catalogue.filter(book => book.category === category);
-
-    renderBookCatalogue(filtered);
+    renderBookCatalogue(category === 'all' ? catalogue : catalogue.filter(b => b.category === category));
   }
 
-  // ====================== RENDERING ======================
   function renderBookCatalogue(bookList = []) {
-    if (catalogueList === null) return;
-
+    if (!catalogueList) return;
     catalogueList.innerHTML = '';
 
     if (bookList.length === 0) {
@@ -232,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const { title, author, isbn, availableCopies, totalCopies } = book;
       const card = document.createElement('div');
       card.className = 'book-card';
-
       card.innerHTML = `
         <h3>${formatBookLabel({ title, author })}</h3>
         <p><strong>ISBN:</strong> ${isbn}</p>
@@ -245,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderMemberList() {
-    if (memberListEl === null) return;
+    if (!memberListEl) return;
     memberListEl.innerHTML = '';
 
     if (members.length === 0) {
@@ -259,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `
         <h3>${name} (${id})</h3>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Borrowed Books:</strong> ${borrowedBooks.length}</p>
+        <p><strong>Borrowed Books:</strong> ${borrowedBooks ? borrowedBooks.length : 0}</p>
       `;
       memberListEl.appendChild(card);
     });
@@ -272,12 +225,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const borrowedEl = document.querySelector('.borrowed-books');
     const overdueEl = document.querySelector('.overdue-count');
 
-    if (totalEl !== null) totalEl.textContent = `${stats.totalBooks}`;
-    if (membersEl !== null) membersEl.textContent = `${stats.totalMembers}`;
-    if (borrowedEl !== null) borrowedEl.textContent = `${stats.borrowedBooks}`;
-    if (overdueEl !== null) overdueEl.textContent = `${stats.hasOverdueLoans ? 'Yes' : 'None'}`;
+    if (totalEl) totalEl.textContent = `${stats.totalBooks}`;
+    if (membersEl) membersEl.textContent = `${stats.totalMembers}`;
+    if (borrowedEl) borrowedEl.textContent = `${stats.borrowedBooks}`;
+    if (overdueEl) overdueEl.textContent = `${stats.hasOverdueLoans ? 'Yes' : 'None'}`;
   }
 
+  // Prevent heavy search calls on rapid keypresses
   function debounce(func, delay = 300) {
     let timeout;
     return (...args) => {
@@ -286,14 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // ====================== BOOT SEQUENCE ======================
+  // Application initialization sequence
   setupEventListeners();
 
-  // Set default tab on load
   const defaultTab = document.getElementById('dashboard-tab');
-  if (defaultTab) {
-    switchTab(defaultTab);
-  }
+  if (defaultTab) switchTab(defaultTab);
 
   renderBookCatalogue(loadCatalogue());
   renderMemberList();

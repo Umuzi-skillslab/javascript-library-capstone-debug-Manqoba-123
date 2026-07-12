@@ -179,7 +179,39 @@
           hidden
         >
           <h2>Member Management</h2>
-          <div id="member-form"></div>
+
+          <form id="add-member-form" style="margin-bottom: 2rem">
+            <h3>Add New Member</h3>
+            <div class="form-group">
+              <label for="member-id">Member ID</label>
+              <input
+                type="text"
+                id="member-id"
+                placeholder="e.g. M001"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="member-name">Name</label>
+              <input
+                type="text"
+                id="member-name"
+                placeholder="Full Name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="member-email">Email</label>
+              <input
+                type="email"
+                id="member-email"
+                placeholder="email@example.com"
+                required
+              />
+            </div>
+            <button type="submit">Register Member</button>
+          </form>
+
           <div id="member-list"></div>
         </section>
 

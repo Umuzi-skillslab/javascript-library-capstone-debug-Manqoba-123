@@ -1,14 +1,12 @@
-// Core persistent data stores
+// Core data stores
 let books = [];
 let members = [];
-let loans = []; // Track who borrowed what
+let loans = [];
 
 const LATE_FEE_PER_DAY = 0.50;
 const MAX_BOOKS_PER_MEMBER = 5;
 
-// ====================== OOP CLASSES ======================
-
-// 1. Base Book Class
+// Base Book Class
 class Book {
     constructor(isbn, title, author, category, availableCopies = 1, totalCopies = 1) {
         if (!isbn || typeof isbn !== 'string') throw new TypeError('Valid ISBN string is required.');
@@ -25,7 +23,7 @@ class Book {
     }
 }
 
-// 2. DigitalBook Subclass
+// DigitalBook Subclass
 class DigitalBook extends Book {
     constructor(isbn, title, author, category, downloadUrl, fileSizeMB) {
         super(isbn, title, author, category, Infinity, Infinity);
@@ -34,7 +32,7 @@ class DigitalBook extends Book {
     }
 }
 
-// 3. Base Member Class
+// Base Member Class
 class Member {
     constructor(id, name, email, joinDate = new Date().toISOString()) {
         if (!id || typeof id !== 'string') throw new TypeError('Valid Member ID required.');
@@ -42,7 +40,7 @@ class Member {
         this.name = name || 'Anonymous';
         this.email = email || '';
         this.joinDate = joinDate;
-        this.borrowedBooks = []; // Array of ISBNs
+        this.borrowedBooks = [];
     }
 
     canBorrow() {
@@ -56,20 +54,17 @@ class Member {
     }
 }
 
-// 4. PremiumMember Subclass
+// PremiumMember Subclass
 class PremiumMember extends Member {
     constructor(id, name, email, joinDate, maxLimit = 10) {
         super(id, name, email, joinDate);
         this.maxLimit = maxLimit;
     }
 
-    // Method Override
     canBorrow() {
         return this.borrowedBooks.length < this.maxLimit;
     }
 }
-
-// ====================== STATS OBJECT ======================
 
 const LibraryStats = {
     getTotalBooksCount(bookList = []) {
@@ -78,26 +73,25 @@ const LibraryStats = {
     getActiveLoansCount(loanList = []) {
         return loanList.length;
     },
-    getMemberBorrowingRate(memberList = [], bookList = []) {
+    getMemberBorrowingRate(memberList = []) {
         if (!memberList.length) return 0;
         const totalBorrowed = memberList.reduce((acc, m) => acc + m.borrowedBooks.length, 0);
         return (totalBorrowed / memberList.length).toFixed(2);
     }
 };
 
-// Recursive Function
 function calculateRecursiveFine(daysOverdue, rate = LATE_FEE_PER_DAY) {
-    if (typeof daysOverdue !== 'number' || daysOverdue <= 0) return 0; // Base case
+    if (typeof daysOverdue !== 'number' || daysOverdue <= 0) return 0;
     return rate + calculateRecursiveFine(daysOverdue - 1, rate);
 }
 
 function findCategoryDeep(categoryTree, targetCategory) {
-    if (!categoryTree || typeof categoryTree !== 'object') return null; // Base case 1
-    if (categoryTree.name === targetCategory) return categoryTree; // Base case 2
+    if (!categoryTree || typeof categoryTree !== 'object') return null;
+    if (categoryTree.name === targetCategory) return categoryTree;
 
     if (Array.isArray(categoryTree.subcategories)) {
         for (const sub of categoryTree.subcategories) {
-            const found = findCategoryDeep(sub, targetCategory); // Recursive call
+            const found = findCategoryDeep(sub, targetCategory);
             if (found) return found;
         }
     }
@@ -105,16 +99,11 @@ function findCategoryDeep(categoryTree, targetCategory) {
 }
 
 const createFilter = (predicate) => (items) => items.filter(predicate);
-
 const formatBookLabel = ({ title, author }) => `${title.trim()} by ${author.trim()}`;
-
 const isBookAvailable = (book) => Boolean(book && book.availableCopies > 0);
-
-
 const computeLateFee = (daysLate, feePerDay = LATE_FEE_PER_DAY) => Math.max(0, daysLate * feePerDay);
 
-// ====================== LOCALSTORAGE ======================
-
+// Sync with browser storage so data persists across reloads
 function saveToLocalStorage() {
     try {
         localStorage.setItem('libraryBooks', JSON.stringify(books));
@@ -131,16 +120,26 @@ function loadFromLocalStorage() {
         const savedMembers = localStorage.getItem('libraryMembers');
         const savedLoans = localStorage.getItem('libraryLoans');
 
-        if (savedBooks !== null) books = JSON.parse(savedBooks);
-        if (savedMembers !== null) members = JSON.parse(savedMembers);
+        // Reconstruct saved objects so instance methods like canBorrow() work properly
+        if (savedBooks !== null) {
+            const rawBooks = JSON.parse(savedBooks);
+            books = rawBooks.map(b => new Book(b.isbn, b.title, b.author, b.category, b.availableCopies, b.totalCopies));
+        }
+        if (savedMembers !== null) {
+            const rawMembers = JSON.parse(savedMembers);
+            members = rawMembers.map(m => {
+                const member = new Member(m.id, m.name, m.email, m.joinDate);
+                member.borrowedBooks = m.borrowedBooks || [];
+                return member;
+            });
+        }
         if (savedLoans !== null) loans = JSON.parse(savedLoans);
     } catch (err) {
         console.error('Error loading from LocalStorage:', err);
     }
 }
 
-// ====================== CORE BUSINESS LOGIC ======================
-
+// Update existing stock if ISBN exists, otherwise register a new title
 function addNewBook(bookData = {}) {
     try {
         const { isbn, title, author, category, totalCopies = 1 } = bookData;
@@ -149,11 +148,8 @@ function addNewBook(bookData = {}) {
 
         const existingIndex = books.findIndex(b => b.isbn === isbn);
         if (existingIndex !== -1) {
-            books[existingIndex] = {
-                ...books[existingIndex],
-                totalCopies: books[existingIndex].totalCopies + totalCopies,
-                availableCopies: books[existingIndex].availableCopies + totalCopies
-            };
+            books[existingIndex].totalCopies += totalCopies;
+            books[existingIndex].availableCopies += totalCopies;
         } else {
             const newBook = new Book(isbn, title, author, category, totalCopies, totalCopies);
             books = [...books, newBook];
@@ -167,6 +163,25 @@ function addNewBook(bookData = {}) {
     }
 }
 
+// Register a new library member
+function addNewMember(memberData = {}) {
+    try {
+        const { id, name, email } = memberData;
+        if (!id || typeof id !== 'string') return false;
+
+        if (members.some(m => m.id === id)) return false;
+
+        const newMember = new Member(id, name, email);
+        members.push(newMember);
+
+        saveToLocalStorage();
+        return true;
+    } catch (error) {
+        console.error('Failed to add new member:', error);
+        return false;
+    }
+}
+
 function borrowBook(memberId, isbn) {
     if (typeof memberId !== 'string' || typeof isbn !== 'string') return false;
 
@@ -176,7 +191,6 @@ function borrowBook(memberId, isbn) {
     if (!member || !book) return false;
     if (!isBookAvailable(book) || !member.canBorrow()) return false;
 
-    // Process borrow
     book.availableCopies -= 1;
     member.borrowedBooks.push(isbn);
 
@@ -198,10 +212,8 @@ function returnBook(memberId, isbn) {
 
     if (!member || !book) return false;
 
-    // Update book availability
     book.availableCopies = Math.min(book.totalCopies, book.availableCopies + 1);
 
-    // Array methods: filter
     member.borrowedBooks = member.borrowedBooks.filter(bIsbn => bIsbn !== isbn);
     loans = loans.filter(l => !(l.memberId === memberId && l.isbn === isbn));
 
@@ -210,7 +222,7 @@ function returnBook(memberId, isbn) {
 }
 
 function loadCatalogue() {
-    return [...books]; // Return shallow copy
+    return [...books];
 }
 
 function findBookByISBN(isbn) {
@@ -223,7 +235,6 @@ function findMemberById(id) {
     return members.find(m => m.id === id);
 }
 
-// Multi-Criteria Search using Rest Parameters
 function searchBooksAdvanced(...criteriaPredicates) {
     return books.filter(book => criteriaPredicates.every(predicate => predicate(book)));
 }
@@ -258,6 +269,7 @@ export {
     calculateRecursiveFine,
     findCategoryDeep,
     addNewBook,
+    addNewMember,
     borrowBook,
     returnBook,
     loadCatalogue,
