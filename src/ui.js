@@ -1,6 +1,8 @@
 import {
   books,
   members,
+  loans,
+  LibraryStats,
   addNewBook,
   addNewMember,
   borrowBook,
@@ -23,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const addBookForm = document.getElementById('add-book-form');
   const addMemberForm = document.getElementById('add-member-form');
   const memberListEl = document.getElementById('member-list');
+  const detailedStatsGrid = document.getElementById('detailed-stats-grid');
 
-  // Toggle active tab accessibility attributes and match visible section
   function switchTab(selectedTab) {
     if (!selectedTab) return;
 
@@ -40,6 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetSection = document.getElementById(targetId);
       if (targetSection) targetSection.removeAttribute('hidden');
     }
+
+    // Refresh display when switching tabs
+    updateStatisticsDisplay();
   }
 
   function setupEventListeners() {
@@ -49,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         switchTab(tab);
       });
     });
-    
+
     const mainNav = document.querySelector('nav');
     if (mainNav) {
       mainNav.addEventListener('keydown', (e) => {
@@ -220,6 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateStatisticsDisplay() {
     const stats = updateStatistics();
+
+    // 1. Update Dashboard quick-stat counters
     const totalEl = document.querySelector('.total-books');
     const membersEl = document.querySelector('.total-members');
     const borrowedEl = document.querySelector('.borrowed-books');
@@ -229,9 +236,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if (membersEl) membersEl.textContent = `${stats.totalMembers}`;
     if (borrowedEl) borrowedEl.textContent = `${stats.borrowedBooks}`;
     if (overdueEl) overdueEl.textContent = `${stats.hasOverdueLoans ? 'Yes' : 'None'}`;
+
+    // 2. Render content into the Statistics Tab grid
+    if (detailedStatsGrid) {
+      const borrowingRate = LibraryStats.getMemberBorrowingRate(members, books);
+      const activeLoans = LibraryStats.getActiveLoansCount(loans);
+
+      detailedStatsGrid.innerHTML = `
+        <div class="stat-card">
+          <h3>Total Titles</h3>
+          <p>${books.length}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Total Physical Copies</h3>
+          <p>${stats.totalBooks}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Total Registered Members</h3>
+          <p>${stats.totalMembers}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Borrowed Copies</h3>
+          <p>${stats.borrowedBooks}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Loans</h3>
+          <p>${activeLoans}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Avg Borrowed / Member</h3>
+          <p>${borrowingRate}</p>
+        </div>
+      `;
+    }
   }
 
-  // Prevent heavy search calls on rapid keypresses
   function debounce(func, delay = 300) {
     let timeout;
     return (...args) => {
@@ -240,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Application initialization sequence
   setupEventListeners();
 
   const defaultTab = document.getElementById('dashboard-tab');
