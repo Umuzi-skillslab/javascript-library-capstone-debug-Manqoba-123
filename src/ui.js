@@ -1,5 +1,3 @@
-// ui.js - Handles DOM interactions, Event Delegation, and Modern UI Rendering
-
 import {
   books,
   members,
@@ -12,7 +10,6 @@ import {
 } from './library.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Safe Cache DOM elements with null checks
   const tabs = document.querySelectorAll('nav button');
   const sections = document.querySelectorAll('main section');
 
@@ -36,14 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedTab.setAttribute('aria-selected', 'true');
 
     sections.forEach(section => {
-      if (section) section.hidden = true;
+      if (section) section.setAttribute('hidden', '');
     });
 
     const targetId = selectedTab.getAttribute('aria-controls');
     if (targetId) {
       const targetSection = document.getElementById(targetId);
       if (targetSection) {
-        targetSection.hidden = false;
+        targetSection.removeAttribute('hidden');
       } else {
         console.warn(`No section found matching ID: "${targetId}"`);
       }
@@ -52,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ====================== EVENT DELEGATION & LISTENERS ======================
   function setupEventListeners() {
-
+    // Tab Button Clicks
     tabs.forEach(tab => {
       tab.addEventListener('click', (event) => {
         event.preventDefault();
@@ -85,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
       searchInput.addEventListener('input', debounce(handleSearch, 300));
     }
 
+    // Category Filter dropdown
     if (filterDropdown !== null) {
       filterDropdown.addEventListener('change', handleFilterChange);
     }
@@ -163,22 +161,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const authorEl = document.getElementById('author');
     const isbnEl = document.getElementById('isbn');
     const categoryEl = document.getElementById('category');
+    const copiesEl = document.getElementById('copies');
 
-    if (!titleEl || !authorEl || !isbnEl || !categoryEl) return;
+    if (!titleEl || !authorEl || !isbnEl || !categoryEl || !copiesEl) return;
+
+    const totalCopies = parseInt(copiesEl.value, 10) || 1;
 
     const bookPayload = {
       title: titleEl.value.trim(),
       author: authorEl.value.trim(),
       isbn: isbnEl.value.trim(),
       category: categoryEl.value,
-      totalCopies: 1
+      totalCopies: totalCopies
     };
 
     if (bookPayload.title && bookPayload.author && bookPayload.isbn) {
       const success = addNewBook(bookPayload);
       if (success) {
-        alert('Book added successfully!');
+        alert(`Successfully added ${totalCopies} copies of "${bookPayload.title}"!`);
         addBookForm.reset();
+
+        const copiesInput = document.getElementById('copies');
+        if (copiesInput) copiesInput.value = 1;
+
         renderBookCatalogue(loadCatalogue());
         updateStatisticsDisplay();
       }

@@ -245,7 +245,6 @@ function updateStatistics() {
 }
 
 loadFromLocalStorage();
-//nitializeSampleData();
 
 export {
     books,
