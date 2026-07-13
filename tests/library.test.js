@@ -1,8 +1,8 @@
-const {
+import {
     books,
     members,
-    LATE_FEE_PER_DAY,
-    MAX_BOOKS_PER_MEMBER,
+    //LATE_FEE_PER_DAY,
+    //MAX_BOOKS_PER_MEMBER,
     Book,
     DigitalBook,
     Member,
@@ -21,17 +21,19 @@ const {
     LibraryStats,
     formatBookInfo,
     calculateFineAmount,
-} = require("../src/library");
+} from '../src/library';
 // Incomplete and with errors
 
 describe('Book Class', () => {
     test('should create a book instance', () => {
-        var book = new Book('978-0-123', 'Test Book', 'Author Name', 2020, 5);
+        const book = new Book('978-0-123', 'Test Book', 'Author Name', 2020, 5);
 
         expect(book.isbn).toBe('978-0-123');
         expect(book.title).toBe('Test Book');
-        // Missing: tests for other properties
-        // Missing: test for availableCopies
+        expect(book.author).toBe('Author Name');
+        expect(book.publicationYear).toBe(2020);
+        expect(book.totalCopies).toBe(5);
+        expect(book.availableCopies).toBe(5);
     });
 
     // Missing: test for checkOut method
