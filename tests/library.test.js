@@ -33,7 +33,6 @@ import {
     updateStatistics,
     formatBookLabel
 } from '../src/library';
-// Incomplete and with errors
 
 describe('Book Class', () => {
     test('should create a book instance', () => {
@@ -93,7 +92,6 @@ describe('DigitalBook Class', () => {
     test('should properly inherit from Book class', () => {
         const digitalBook = new DigitalBook('978-0-999', 'JS Guide', 'Coder Bob', 2022, '5MB', 'PDF');
 
-        // Verify inheritance chain
         expect(digitalBook).toBeInstanceOf(Book);
         expect(digitalBook).toBeInstanceOf(DigitalBook);
     });
@@ -129,7 +127,6 @@ describe('DigitalBook Class', () => {
     test('should allow unlimited downloads via overridden checkOut method', () => {
         const digitalBook = new DigitalBook('978-0-999', 'JS Guide', 'Coder Bob', 2022, '5MB', 'PDF');
 
-        // Checking out a digital book delegates to download()
         expect(digitalBook.checkOut('M001')).toBe(true);
         expect(digitalBook.downloads).toBe(1);
         expect(digitalBook.isAvailable()).toBe(true); // Digital books never run out of copies
@@ -171,25 +168,97 @@ describe('Member Class', () => {
 });
 
 describe('PremiumMember Class', () => {
-    // Missing: all tests for premium member
-    // Missing: test for inheritance
-    // Missing: test for overridden methods
+    test('should properly inherit from Member class', () => {
+        const premiumMember = new PremiumMember('P001', 'Alice Smith', 'alice@example.com', '2023-01-01');
+
+        expect(premiumMember).toBeInstanceOf(Member);
+        expect(premiumMember).toBeInstanceOf(PremiumMember);
+    });
+
+    test('should set default premium properties correctly via super()', () => {
+        const premiumMember = new PremiumMember('P001', 'Alice Smith', 'alice@example.com', '2023-01-01');
+
+        expect(premiumMember.id).toBe('P001');
+        expect(premiumMember.name).toBe('Alice Smith');
+        expect(premiumMember.email).toBe('alice@example.com');
+        expect(premiumMember.membershipType).toBe('premium');
+        expect(premiumMember.joinDate).toBe('2023-01-01');
+        expect(premiumMember.maxBooksAllowed).toBe(10);
+        expect(Array.isArray(premiumMember.perks)).toBe(true);
+    });
+
+    test('should override canBorrow to allow more books than standard member', () => {
+        const premiumMember = new PremiumMember('P001', 'Alice Smith', 'alice@example.com');
+
+        premiumMember.borrowedBooks = ['B1', 'B2', 'B3', 'B4', 'B5'];
+
+        expect(premiumMember.canBorrow()).toBe(true);
+
+        premiumMember.borrowedBooks = [
+            'B1', 'B2', 'B3', 'B4', 'B5',
+            'B6', 'B7', 'B8', 'B9', 'B10'
+        ];
+
+        expect(premiumMember.canBorrow()).toBe(false);
+    });
 });
 
 describe('Library Functions', () => {
-    // Missing: beforeEach to initialize test data
+    beforeEach(() => {
+        books.length = 0;
+        members.length = 0;
 
-    test('findBookByISBN returns book', () => {
-        // Test data not set up properly
-        var book = findBookByISBN('978-0-123');
+        books.push(
+            new Book('978-0-123', 'JS Fundamentals', 'John Doe', 2021, 3, 'Technology'),
+            new Book('978-0-456', 'Advanced JS', 'John Doe', 2023, 2, 'Technology'),
+            new Book('978-0-789', 'Cooking Basics', 'Jane Smith', 2020, 1, 'Culinary')
+        );
 
-        // Will fail - no books in array
-        expect(book).toBeDefined();
+        members.push(
+            new Member('M001', 'Alice Green', 'alice@example.com', 'standard')
+        );
     });
 
-    // Missing: test for getBooksByAuthor
-    // Missing: test with empty arrays
-    // Missing: test with null/undefined inputs
+    test('findBookByISBN returns book', () => {
+        const book = findBookByISBN('978-0-123');
+        expect(book).toBeDefined();
+        expect(book).not.toBeNull();
+        expect(book.title).toBe('JS Fundamentals');
+
+        const notFound = findBookByISBN('978-0-000');
+        expect(notFound).toBeNull();
+    });
+
+    test('getBooksByAuthor filters books by author name', () => {
+        const johnBooks = getBooksByAuthor('John Doe');
+        expect(johnBooks.length).toBe(2);
+        expect(johnBooks[0].title).toBe('JS Fundamentals');
+        expect(johnBooks[1].title).toBe('Advanced JS');
+
+        const janeBooks = getBooksByAuthor('Jane Smith');
+        expect(janeBooks.length).toBe(1);
+        expect(janeBooks[0].title).toBe('Cooking Basics');
+
+        const unknownAuthor = getBooksByAuthor('Non Existent Author');
+        expect(unknownAuthor).toEqual([]);
+    });
+
+    test('should handle search with empty arrays safely', () => {
+        books.length = 0;
+
+        expect(findBookByISBN('978-0-123')).toBeNull();
+        expect(getBooksByAuthor('John Doe')).toEqual([]);
+    });
+    
+    test('should handle null, undefined, and invalid inputs gracefully', () => {
+        expect(findBookByISBN(null)).toBeNull();
+        expect(findBookByISBN(undefined)).toBeNull();
+        expect(findBookByISBN('')).toBeNull();
+
+        expect(getBooksByAuthor(null)).toEqual([]);
+        expect(getBooksByAuthor(undefined)).toEqual([]);
+        expect(getBooksByAuthor(12345)).toEqual([]);
+    });
 });
 
 describe('Array Operations', () => {
