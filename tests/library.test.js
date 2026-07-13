@@ -755,9 +755,129 @@ describe('LocalStorage', () => {
     });
 });
 
-// Missing: describe blocks for:
-// - Nested loops
-// - For-of loops
-// - Destructuring
-// - Scope testing (var, let, const)
-// - Module exports/imports
+describe('JavaScript Fundamentals & Modern Syntax', () => {
+
+
+    // NESTED LOOPS
+    // ============
+    describe('Nested Loops', () => {
+        test('should process 2D array data correctly using nested loops', () => {
+            const matrix = [
+                [1, 2],
+                [3, 4]
+            ];
+            let sum = 0;
+
+            for (let i = 0; i < matrix.length; i++) {
+                for (let j = 0; j < matrix[i].length; j++) {
+                    sum += matrix[i][j];
+                }
+            }
+
+            expect(sum).toBe(10);
+        });
+
+        test('should match multi-category nested structures', () => {
+            const libraryCategories = [
+                { category: 'Fiction', books: ['Book A', 'Book B'] },
+                { category: 'Tech', books: ['Book C'] }
+            ];
+            const allTitles = [];
+
+            for (let i = 0; i < libraryCategories.length; i++) {
+                for (let j = 0; j < libraryCategories[i].books.length; j++) {
+                    allTitles.push(libraryCategories[i].books[j]);
+                }
+            }
+
+            expect(allTitles).toEqual(['Book A', 'Book B', 'Book C']);
+        });
+    });
+
+    // FOR-OF LOOPS
+    describe('For-Of Loops', () => {
+        test('should iterate over array elements sequentially', () => {
+            const items = ['Clean Code', 'Design Patterns', 'Refactoring'];
+            const collected = [];
+
+            for (const item of items) {
+                collected.push(item);
+            }
+
+            expect(collected).toEqual(items);
+        });
+
+        test('should iterate over string characters with for-of', () => {
+            const isbn = '123';
+            const digits = [];
+
+            for (const char of isbn) {
+                digits.push(Number(char));
+            }
+
+            expect(digits).toEqual([1, 2, 3]);
+        });
+    });
+
+    //  DESTRUCTURING
+
+    describe('Destructuring', () => {
+        test('should extract properties from objects using object destructuring', () => {
+            const book = { title: 'Dune', author: 'Frank Herbert', year: 1965 };
+            const { title, author } = book;
+
+            expect(title).toBe('Dune');
+            expect(author).toBe('Frank Herbert');
+        });
+
+        test('should unpack values from arrays using array destructuring', () => {
+            const scores = [95, 88, 72];
+            const [first, second] = scores;
+
+            expect(first).toBe(95);
+            expect(second).toBe(88);
+        });
+
+        test('[Edge Case] should assign default values when properties are missing', () => {
+            const book = { title: 'Unknown Book' };
+            const { title, availableCopies = 1 } = book;
+
+            expect(title).toBe('Unknown Book');
+            expect(availableCopies).toBe(1);
+        });
+    });
+
+    //  SCOPE TESTING (var, let, const)
+    describe('Scope Testing (var, let, const)', () => {
+        test('let and const should be block-scoped', () => {
+            if (true) {
+                let blockLet = 'inside block';
+                const blockConst = 'inside block';
+                expect(blockLet).toBe('inside block');
+                expect(blockConst).toBe('inside block');
+            }
+
+            expect(() => blockLet).toThrow(ReferenceError);
+            expect(() => blockConst).toThrow(ReferenceError);
+        });
+
+        test('var should be function-scoped rather than block-scoped', () => {
+            function testVarScope() {
+                if (true) {
+                    var functionVar = 'accessible outside block';
+                }
+                return functionVar;
+            }
+
+            expect(testVarScope()).toBe('accessible outside block');
+        });
+
+        test('const should prevent reassignment', () => {
+            const immutableRef = 42;
+            
+            expect(() => {
+                immutableRef = 100;
+            }).toThrow(TypeError);
+        });
+    });
+});
