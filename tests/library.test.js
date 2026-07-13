@@ -1,3 +1,10 @@
+/**
+ * @jest-environment jsdom
+ */
+
+
+import { renderBookCatalogue, handleSearch } from '../src/ui.js';
+
 import {
     books,
     members,
@@ -484,22 +491,103 @@ describe('String Operations', () => {
 
 describe('Math Operations', () => {
     test('calculateFineAmount returns number', () => {
-        var fine = calculateFineAmount(5);
+        const fine = calculateFineAmount(5);
 
-        expect(typeof fine).toBe('number');
-        // Missing: test for correct calculation
-        // Missing: test for toFixed/rounding
+        expect(typeof fine).toBe('string');
+        expect(fine).toBe('2.50');
     });
 
-    // Missing: test for NaN handling
-    // Missing: test for negative numbers
+    test('calculateFineAmount correctly applies toFixed currency formatting and rounding', () => {
+        expect(calculateFineAmount(1)).toBe('0.50');
+
+        expect(calculateFineAmount(10)).toBe('5.00');
+    });
+
+    test('calculateFineAmount returns 0.00 for zero or negative days late', () => {
+        expect(calculateFineAmount(0)).toBe('0.00');
+        expect(calculateFineAmount(-3)).toBe('0.00');
+    });
 });
 
 describe('DOM Manipulation', () => {
-    // Missing: DOM setup with jsdom
-    // Missing: tests for event handlers
-    // Missing: tests for renderBookCatalogue
-    // Missing: tests for search functionality
+    let catalogueContainer;
+    let searchInput;
+
+
+    beforeEach(() => {
+        // Set up virtual HTML DOM structure before each test
+        document.body.innerHTML = `
+            <input type="text" id="search" />
+            <select id="filter-category">
+                <option value="all">All</option>
+            </select>
+            <div id="catalogue-list"></div>
+        `;
+
+        catalogueContainer = document.getElementById('catalogue-list');
+        searchInput = document.getElementById('search');
+
+        books.length = 0;
+        books.push(
+            { isbn: '111', title: 'JavaScript Essentials', author: 'John Doe', availableCopies: 2, totalCopies: 3, category: 'Technology' },
+            { isbn: '222', title: 'Python Programming', author: 'Jane Smith', availableCopies: 0, totalCopies: 1, category: 'Technology' }
+        );
+    });
+
+    test('renderBookCatalogue renders book cards into DOM correctly', () => {
+        renderBookCatalogue(books);
+
+        const cards = catalogueContainer.querySelectorAll('.book-card');
+        expect(cards.length).toBe(2);
+
+        expect(cards[0].innerHTML).toContain('JavaScript Essentials');
+        expect(cards[0].innerHTML).toContain('111');
+        expect(cards[1].innerHTML).toContain('Python Programming');
+    });
+
+    test('renderBookCatalogue handles empty list gracefully', () => {
+        renderBookCatalogue([]);
+
+        expect(catalogueContainer.innerHTML).toContain('No books found matching criteria.');
+    });
+
+    test('handleSearch filters catalogue on user input event', () => {
+        renderBookCatalogue(books);
+
+        searchInput.value = 'python';
+        const event = { target: searchInput };
+
+        handleSearch(event);
+
+        const cards = catalogueContainer.querySelectorAll('.book-card');
+        expect(cards.length).toBe(1);
+        expect(cards[0].innerHTML).toContain('Python Programming');
+    });
+
+    test('handleSearch event listener triggers DOM update on input', () => {
+        renderBookCatalogue(books);
+
+        searchInput.addEventListener('input', handleSearch);
+
+        searchInput.value = 'JavaScript';
+        searchInput.dispatchEvent(new Event('input'));
+
+        const cards = catalogueContainer.querySelectorAll('.book-card');
+        expect(cards.length).toBe(1);
+        expect(cards[0].innerHTML).toContain('JavaScript Essentials');
+    });
+
+    test('clicking quick-borrow button triggers borrowBook logic', () => {
+        renderBookCatalogue(books);
+
+        const borrowBtn = document.querySelector('.btn-quick-borrow');
+        expect(borrowBtn).not.toBeNull();
+
+        borrowBtn.click();
+
+        const statusText = document.querySelector('.book-card').textContent;
+        expect(statusText).toContain('Copies:');
+    });
 });
 
 describe('JSON Operations', () => {

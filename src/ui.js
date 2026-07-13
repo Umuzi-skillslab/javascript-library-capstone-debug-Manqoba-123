@@ -20,6 +20,52 @@ import {
   formatBookLabel
 } from './library.js';
 
+function renderBookCatalogue(bookList = []) {
+  const catalogueContainer = document.querySelector('#catalogue-list');
+
+  if (!catalogueContainer) return;
+  catalogueContainer.innerHTML = '';
+
+  if (!Array.isArray(bookList) || bookList.length === 0) {
+    catalogueContainer.innerHTML = '<p>No books found matching criteria.</p>';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  bookList.forEach(book => {
+    const { title, author, isbn, availableCopies, totalCopies } = book;
+    const card = document.createElement('div');
+    card.className = 'book-card';
+    card.setAttribute('data-isbn', isbn);
+    card.innerHTML = `
+        <h3>${formatBookLabel({ title, author })}</h3>
+        <p><strong>ISBN:</strong> ${isbn}</p>
+        <p><strong>Copies:</strong> ${availableCopies !== undefined ? availableCopies : 1} / ${totalCopies !== undefined ? totalCopies : 1}</p>
+        <p><strong>Status:</strong> ${(availableCopies === undefined || availableCopies > 0) ? 'Available' : 'Out of Stock'}</p>
+        <button type="button" class="btn-quick-borrow" data-isbn="${isbn}">Quick Reserve / Details</button>
+      `;
+    fragment.appendChild(card);
+  });
+
+  catalogueContainer.appendChild(fragment);
+}
+
+function handleSearch(event) {
+  const searchTerm = event && event.target ? event.target.value.toLowerCase().trim() : '';
+  if (!searchTerm) {
+    renderBookCatalogue(loadCatalogue());
+    return;
+  }
+
+  const filtered = loadCatalogue().filter(({ title, author, isbn }) =>
+    (title && title.toLowerCase().includes(searchTerm)) ||
+    (author && author.toLowerCase().includes(searchTerm)) ||
+    (isbn && isbn.toLowerCase().includes(searchTerm))
+  );
+  renderBookCatalogue(filtered);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // DOM Target Cache
   const catalogueContainer = document.querySelector('#catalogue-list');
@@ -95,34 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Rendering & DOM Methods
-  function renderBookCatalogue(bookList = []) {
-    if (!catalogueContainer) return;
-    catalogueContainer.innerHTML = '';
 
-    if (!Array.isArray(bookList) || bookList.length === 0) {
-      catalogueContainer.innerHTML = '<p>No books found matching criteria.</p>';
-      return;
-    }
-
-    const fragment = document.createDocumentFragment();
-
-    bookList.forEach(book => {
-      const { title, author, isbn, availableCopies, totalCopies } = book;
-      const card = document.createElement('div');
-      card.className = 'book-card';
-      card.setAttribute('data-isbn', isbn);
-      card.innerHTML = `
-        <h3>${formatBookLabel({ title, author })}</h3>
-        <p><strong>ISBN:</strong> ${isbn}</p>
-        <p><strong>Copies:</strong> ${availableCopies !== undefined ? availableCopies : 1} / ${totalCopies !== undefined ? totalCopies : 1}</p>
-        <p><strong>Status:</strong> ${(availableCopies === undefined || availableCopies > 0) ? 'Available' : 'Out of Stock'}</p>
-        <button type="button" class="btn-quick-borrow" data-isbn="${isbn}">Quick Reserve / Details</button>
-      `;
-      fragment.appendChild(card);
-    });
-
-    catalogueContainer.appendChild(fragment);
-  }
 
   function displayBookDetails(isbn) {
     const book = findBookByISBN(isbn);
@@ -267,20 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function handleSearch(event) {
-    const searchTerm = event && event.target ? event.target.value.toLowerCase().trim() : '';
-    if (!searchTerm) {
-      renderBookCatalogue(loadCatalogue());
-      return;
-    }
-
-    const filtered = loadCatalogue().filter(({ title, author, isbn }) =>
-      (title && title.toLowerCase().includes(searchTerm)) ||
-      (author && author.toLowerCase().includes(searchTerm)) ||
-      (isbn && isbn.toLowerCase().includes(searchTerm))
-    );
-    renderBookCatalogue(filtered);
-  }
 
   function handleFilterChange() {
     if (!filterDropdown) return;
@@ -687,3 +692,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Launch Application
   initializeUI();
 });
+
+export {
+  renderBookCatalogue,
+  handleSearch
+};
