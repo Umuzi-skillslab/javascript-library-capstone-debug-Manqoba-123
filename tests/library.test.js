@@ -125,6 +125,15 @@ describe('DigitalBook Class', () => {
         expect(digitalBook.downloads).toBe(2);
         expect(digitalBook.checkedOut).toContain('M002');
     });
+
+    test('should allow unlimited downloads via overridden checkOut method', () => {
+        const digitalBook = new DigitalBook('978-0-999', 'JS Guide', 'Coder Bob', 2022, '5MB', 'PDF');
+
+        // Checking out a digital book delegates to download()
+        expect(digitalBook.checkOut('M001')).toBe(true);
+        expect(digitalBook.downloads).toBe(1);
+        expect(digitalBook.isAvailable()).toBe(true); // Digital books never run out of copies
+    });
 });
 
 describe('Member Class', () => {
