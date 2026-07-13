@@ -421,7 +421,7 @@ describe('Error Handling', () => {
 
     test('returnBook executes try-catch safety on bad inputs', () => {
         expect(() => returnBook(null, null)).not.toThrow();
-        
+
         const failureResult = returnBook('NON_EXISTENT_MEMBER', 'INVALID_ISBN');
         expect(failureResult).toEqual({ success: false });
     });
@@ -435,7 +435,7 @@ describe('Error Handling', () => {
 
         expect(calculateFineAmount(4)).toBe('2.00');
     });
-   
+
     test('updateMemberInfo validates input object types', () => {
         expect(updateMemberInfo(null, { name: 'New Name' })).toBeNull();
         expect(updateMemberInfo(undefined, {})).toBeNull();
@@ -444,9 +444,42 @@ describe('Error Handling', () => {
 });
 
 describe('String Operations', () => {
-    // Missing: tests for formatBookInfo
-    // Missing: tests for template literals
-    // Missing: tests for string methods
+    test('formatBookInfo formats book details using template literals', () => {
+        const sampleBook = {
+            title: 'Clean Code',
+            author: 'Robert C. Martin',
+            publicationYear: 2008
+        };
+
+        const result = formatBookInfo(sampleBook);
+
+        expect(result).toContain('TITLE: CLEAN CODE');
+        expect(result).toContain('AUTHOR: Robert C. Martin');
+        expect(result).toContain('YEAR: 2008');
+    });
+
+    test('formatBookInfo handles null, undefined, or missing properties safely', () => {
+        expect(formatBookInfo(null)).toBe('');
+        expect(formatBookInfo(undefined)).toBe('');
+
+        const incompleteBook = {};
+        const result = formatBookInfo(incompleteBook);
+
+        expect(result).toContain('TITLE: UNKNOWN TITLE');
+        expect(result).toContain('AUTHOR: Unknown Author');
+    });
+
+    test('formatBookLabel formats book title and author using destructuring and template literals', () => {
+        const book = { title: 'The Pragmatic Programmer', author: 'Andy Hunt' };
+
+        const label = formatBookLabel(book);
+        expect(label).toBe('The Pragmatic Programmer — by Andy Hunt');
+    });
+
+    test('formatBookLabel returns fallback string on missing book properties', () => {
+        expect(formatBookLabel(null)).toBe('Untitled — by Unknown');
+        expect(formatBookLabel({})).toBe('Untitled — by Unknown');
+    });
 });
 
 describe('Math Operations', () => {
