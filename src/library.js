@@ -1,8 +1,6 @@
 //Global State & Constants
 let books = [];
-
 let members = [];
-
 let loans = [];
 
 const LATE_FEE_PER_DAY = 0.50;
