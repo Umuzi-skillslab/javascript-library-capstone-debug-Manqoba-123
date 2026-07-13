@@ -249,7 +249,7 @@ describe('Library Functions', () => {
         expect(findBookByISBN('978-0-123')).toBeNull();
         expect(getBooksByAuthor('John Doe')).toEqual([]);
     });
-    
+
     test('should handle null, undefined, and invalid inputs gracefully', () => {
         expect(findBookByISBN(null)).toBeNull();
         expect(findBookByISBN(undefined)).toBeNull();
@@ -262,11 +262,68 @@ describe('Library Functions', () => {
 });
 
 describe('Array Operations', () => {
-    // Missing: tests for filter operations
-    // Missing: tests for map operations
-    // Missing: tests for reduce operations
-    // Missing: tests for spread operator
-    // Missing: tests for rest parameters
+    let sampleBooks;
+
+    beforeEach(() => {
+        sampleBooks = [
+            { isbn: '101', title: 'Tech Book A', category: 'Technology', availableCopies: 2 },
+            { isbn: '102', title: 'Cooking 101', category: 'Culinary', availableCopies: 0 },
+            { isbn: '103', title: 'Tech Book B', category: 'Technology', availableCopies: 5 },
+        ];
+    });
+
+    test('should filter books by availability or category', () => {
+        const available = sampleBooks.filter(b => b.availableCopies > 0);
+        expect(available.length).toBe(2);
+
+        const techBooks = sampleBooks.filter(b => b.category === 'Technology');
+        expect(techBooks.length).toBe(2);
+    });
+
+    test('should map book arrays to titles or ISBN lists', () => {
+        const titles = sampleBooks.map(b => b.title);
+        expect(titles).toEqual(['Tech Book A', 'Cooking 101', 'Tech Book B']);
+
+        const isbns = sampleBooks.map(b => b.isbn);
+        expect(isbns).toEqual(['101', '102', '103']);
+    });
+
+    test('should use reduce via calculateTotalLateFees', () => {
+        const memberRecord = {
+            overdueBooks: [
+                { isbn: '101', daysLate: 2 },
+                { isbn: '102', daysLate: 4 }
+            ]
+        };
+
+        const totalFees = calculateTotalLateFees(memberRecord);
+        expect(totalFees).toBe(3.00);
+    });
+
+    test('should combine book collections using spread operator', () => {
+        const fiction = [{ isbn: '1', title: 'Fiction Book' }];
+        const nonFiction = [{ isbn: '2', title: 'Non-Fiction Book' }];
+        const reference = [{ isbn: '3', title: 'Dictionary' }];
+
+        const combined = combineBookCollections(fiction, nonFiction, reference);
+
+        expect(combined.length).toBe(3);
+        expect(combined).toEqual([...fiction, ...nonFiction, ...reference]);
+    });
+
+    test('should handle rest parameters via addMultipleBooks', () => {
+        books.length = 0;
+
+        const b1 = new Book('111', 'Book 1', 'Author A', 2020, 1);
+        const b2 = new Book('222', 'Book 2', 'Author B', 2021, 1);
+        const b3 = new Book('333', 'Book 3', 'Author C', 2022, 1);
+
+        const addedCount = addMultipleBooks(b1, b2, b3);
+
+        expect(addedCount).toBe(3);
+        expect(books.length).toBe(3);
+        expect(findBookByISBN('222')).toBeDefined();
+    });
 });
 
 describe('Recursive Functions', () => {
