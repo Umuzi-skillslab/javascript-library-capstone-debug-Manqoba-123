@@ -2,6 +2,7 @@
  * @jest-environment jsdom
  */
 
+import { jest } from '@jest/globals';
 
 import { renderBookCatalogue, handleSearch } from '../src/ui.js';
 
@@ -640,7 +641,6 @@ describe('JSON Operations', () => {
         test('[Failure Scenario] should throw a SyntaxError when parsing invalid JSON string', () => {
             const invalidJson = '{"title": "Unclosed string, author: "Test"}';
 
-            // Wrap in a function so Jest can capture the thrown error
             expect(() => {
                 JSON.parse(invalidJson);
             }).toThrow(SyntaxError);
@@ -672,10 +672,87 @@ describe('JSON Operations', () => {
 });
 
 describe('LocalStorage', () => {
-    // Missing: localStorage mock
-    // Missing: tests for save functionality
-    // Missing: tests for load functionality
-    // Missing: tests for error handling
+    beforeEach(() => {
+        localStorage.clear();
+    });
+
+    describe('Save Functionality', () => {
+        test('should save data into localStorage using setItem', () => {
+            const setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+            const sampleData = JSON.stringify([{ id: 1, title: 'Clean Code' }]);
+
+            localStorage.setItem('library_books', sampleData);
+
+            expect(setItemSpy).toHaveBeenCalledWith('library_books', sampleData);
+            expect(localStorage.getItem('library_books')).toBe(sampleData);
+        });
+
+        test('should overwrite existing value when saving with an existing key', () => {
+            localStorage.setItem('user_role', 'guest');
+            localStorage.setItem('user_role', 'admin');
+
+            expect(localStorage.getItem('user_role')).toBe('admin');
+        });
+    });
+
+    describe('Load Functionality', () => {
+        test('should retrieve stored data from localStorage using getItem', () => {
+            const dataToStore = JSON.stringify({ theme: 'dark' });
+
+            localStorage.setItem('settings', dataToStore);
+            const retrievedData = localStorage.getItem('settings');
+
+            expect(JSON.parse(retrievedData)).toEqual({ theme: 'dark' });
+        });
+
+        test('[Edge Case] should return null when attempting to load a non-existent key', () => {
+            const result = localStorage.getItem('non_existent_key');
+            expect(result).toBeNull();
+        });
+    });
+    
+    describe('Error Handling and Failure Scenarios', () => {
+        test('[Failure Scenario] should catch QuotaExceededError when localStorage is full', () => {
+            const originalSetItem = Storage.prototype.setItem;
+            
+            // Mock setItem directly
+            Storage.prototype.setItem = () => {
+                const error = new Error('QuotaExceededError');
+                error.name = 'QuotaExceededError';
+                throw error;
+            };
+
+            const saveToLocalStorage = (key, value) => {
+                try {
+                    localStorage.setItem(key, value);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            };
+
+            const result = saveToLocalStorage('heavy_data', 'x'.repeat(1000));
+            expect(result).toBe(false);
+
+            // Restore original method
+            Storage.prototype.setItem = originalSetItem;
+        });
+
+        test('[Failure Scenario] should handle errors when localStorage access is disabled/blocked', () => {
+            const originalGetItem = Storage.prototype.getItem;
+
+            Storage.prototype.getItem = () => {
+                throw new Error('Access is denied for this document');
+            };
+
+            expect(() => {
+                localStorage.getItem('any_key');
+            }).toThrow('Access is denied for this document');
+
+            // Restore original method
+            Storage.prototype.getItem = originalGetItem;
+        });
+    });
 });
 
 // Missing: describe blocks for:
