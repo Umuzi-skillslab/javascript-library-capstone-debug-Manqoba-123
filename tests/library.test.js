@@ -327,9 +327,69 @@ describe('Array Operations', () => {
 });
 
 describe('Recursive Functions', () => {
-    // Missing: test for searchBooksByCategory
-    // Missing: test for base case
-    // Missing: test for stack overflow prevention
+
+    let categoryTree;
+
+    beforeEach(() => {
+        categoryTree = {
+            name: 'Library Root',
+            subcategories: [
+                {
+                    name: 'Technology',
+                    subcategories: [
+                        { name: 'Computer Science', subcategories: [] },
+                        { name: 'Software Engineering', subcategories: [] }
+                    ]
+                },
+                {
+                    name: 'Fiction',
+                    subcategories: [
+                        { name: 'Sci-Fi', subcategories: [] }
+                    ]
+                }
+            ]
+        };
+    });
+
+    test('searchBooksByCategory recursively matches categories across a list', () => {
+        const bookList = [
+            { title: 'Book 1', category: 'Technology' },
+            { title: 'Book 2', category: 'Fiction' },
+            { title: 'Book 3', category: 'Technology' },
+        ];
+
+        const techResults = searchBooksByCategory(bookList, 'Technology', 0);
+        expect(techResults.length).toBe(2);
+        expect(techResults[0].title).toBe('Book 1');
+        expect(techResults[1].title).toBe('Book 3');
+    });
+
+    test('should properly hit base cases on out-of-bounds index or missing target', () => {
+        const bookList = [
+            { title: 'Book 1', category: 'Technology' }
+        ];
+
+        const outOfBounds = searchBooksByCategory(bookList, 'Technology', 5);
+        expect(outOfBounds).toEqual([]);
+
+        const notFound = searchBooksByCategory(bookList, 'NonExistent', 0);
+        expect(notFound).toEqual([]);
+    });
+
+    test('findCategoryDeep searches nested tree objects recursively', () => {
+        const foundNode = findCategoryDeep(categoryTree, 'Software Engineering');
+        expect(foundNode).not.toBeNull();
+        expect(foundNode.name).toBe('Software Engineering');
+
+        const missingNode = findCategoryDeep(categoryTree, 'History');
+        expect(missingNode).toBeNull();
+    });
+
+    test('prevents stack overflow by terminating correctly on empty or null inputs', () => {
+        expect(() => searchBooksByCategory([], 'Technology', 0)).not.toThrow();
+        expect(() => calculateRecursiveFine(0)).not.toThrow();
+        expect(() => findCategoryDeep(null, 'Target')).not.toThrow();
+    });
 });
 
 describe('Error Handling', () => {
