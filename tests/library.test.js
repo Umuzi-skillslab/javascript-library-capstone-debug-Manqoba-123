@@ -10,15 +10,10 @@ import {
     books,
     members,
     loans,
-    LATE_FEE_PER_DAY,
-    MAX_BOOKS_PER_MEMBER,
     Book,
     DigitalBook,
     Member,
     PremiumMember,
-    LibraryStats,
-    findOverdueBooks,
-    processReturnQueue,
     searchBooksByCategory,
     getBooksByAuthor,
     calculateTotalLateFees,
@@ -27,18 +22,11 @@ import {
     updateMemberInfo,
     borrowBook,
     returnBook,
-    findMemberById,
     findBookByISBN,
     formatBookInfo,
     calculateFineAmount,
     calculateRecursiveFine,
     findCategoryDeep,
-    calculateLoanDurationDays,
-    addNewBook,
-    addNewMember,
-    loadCatalogue,
-    searchBooksAdvanced,
-    updateStatistics,
     formatBookLabel
 } from '../src/library';
 
@@ -90,7 +78,6 @@ describe('Book Class', () => {
         }
 
         if (typeof book.toString === 'function') {
-            // Checks that toString() contains the actual title of the book
             expect(book.toString()).toContain('How to Read a Book');
         }
     });
