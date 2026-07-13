@@ -591,9 +591,84 @@ describe('DOM Manipulation', () => {
 });
 
 describe('JSON Operations', () => {
-    // Missing: tests for JSON.stringify
-    // Missing: tests for JSON.parse
-    // Missing: tests for error handling in JSON operations
+    describe('JSON.stringify', () => {
+        test('should convert a valid JavaScript object or array to a JSON string', () => {
+            const book = { title: '1984', author: 'George Orwell', copies: 3 };
+            const jsonString = JSON.stringify(book);
+
+            expect(typeof jsonString).toBe('string');
+            expect(jsonString).toBe('{"title":"1984","author":"George Orwell","copies":3}');
+        });
+
+        test('should handle arrays of objects correctly', () => {
+            const bookList = [
+                { id: 1, title: 'Dune' },
+                { id: 2, title: 'Hobbit' }
+            ];
+            const jsonString = JSON.stringify(bookList);
+
+            expect(jsonString).toBe('[{"id":1,"title":"Dune"},{"id":2,"title":"Hobbit"}]');
+        });
+
+        test('[Edge Case] should handle empty objects and arrays', () => {
+            expect(JSON.stringify({})).toBe('{}');
+            expect(JSON.stringify([])).toBe('[]');
+        });
+    });
+
+    describe('JSON.parse', () => {
+        test('should parse a valid JSON string into a JavaScript object', () => {
+            const jsonString = '{"title":"Clean Code","author":"Robert C. Martin"}';
+            const parsedData = JSON.parse(jsonString);
+
+            expect(typeof parsedData).toBe('object');
+            expect(parsedData.title).toBe('Clean Code');
+            expect(parsedData.author).toBe('Robert C. Martin');
+        });
+
+        test('should parse a valid JSON array string into an Array', () => {
+            const jsonString = '[{"id":101},{"id":102}]';
+            const parsedArray = JSON.parse(jsonString);
+
+            expect(Array.isArray(parsedArray)).toBe(true);
+            expect(parsedArray.length).toBe(2);
+            expect(parsedArray[0].id).toBe(101);
+        });
+    });
+
+    describe('Error Handling and Edge Cases', () => {
+        test('[Failure Scenario] should throw a SyntaxError when parsing invalid JSON string', () => {
+            const invalidJson = '{"title": "Unclosed string, author: "Test"}';
+
+            // Wrap in a function so Jest can capture the thrown error
+            expect(() => {
+                JSON.parse(invalidJson);
+            }).toThrow(SyntaxError);
+        });
+
+        test('[Failure Scenario] should throw a SyntaxError when parsing plain unquoted text', () => {
+            expect(() => {
+                JSON.parse('Invalid Plain Text');
+            }).toThrow(SyntaxError);
+        });
+
+        test('[Edge Case] should handle primitive JSON values (numbers, booleans, null)', () => {
+            expect(JSON.parse('123')).toBe(123);
+            expect(JSON.parse('true')).toBe(true);
+            expect(JSON.parse('null')).toBeNull();
+        });
+
+        test('[Edge Case] should omit undefined values and functions during stringification', () => {
+            const objectWithUndefined = {
+                title: 'Test',
+                secret: undefined,
+                getDetails: () => 'details'
+            };
+            const jsonString = JSON.stringify(objectWithUndefined);
+
+            expect(jsonString).toBe('{"title":"Test"}');
+        });
+    });
 });
 
 describe('LocalStorage', () => {
