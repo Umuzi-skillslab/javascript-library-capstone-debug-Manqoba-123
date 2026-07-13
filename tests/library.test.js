@@ -1,12 +1,14 @@
 import {
     books,
     members,
-    //LATE_FEE_PER_DAY,
-    //MAX_BOOKS_PER_MEMBER,
+    loans,
+    LATE_FEE_PER_DAY,
+    MAX_BOOKS_PER_MEMBER,
     Book,
     DigitalBook,
     Member,
     PremiumMember,
+    LibraryStats,
     findOverdueBooks,
     processReturnQueue,
     searchBooksByCategory,
@@ -16,11 +18,20 @@ import {
     addMultipleBooks,
     updateMemberInfo,
     borrowBook,
+    returnBook,
     findMemberById,
     findBookByISBN,
-    LibraryStats,
     formatBookInfo,
     calculateFineAmount,
+    calculateRecursiveFine,
+    findCategoryDeep,
+    calculateLoanDurationDays,
+    addNewBook,
+    addNewMember,
+    loadCatalogue,
+    searchBooksAdvanced,
+    updateStatistics,
+    formatBookLabel
 } from '../src/library';
 // Incomplete and with errors
 
@@ -36,9 +47,44 @@ describe('Book Class', () => {
         expect(book.availableCopies).toBe(5);
     });
 
-    // Missing: test for checkOut method
-    // Missing: test for availability checking
-    // Missing: test for template literal methods
+    test('should handle checking out copies correctly', () => {
+        const book = new Book('978-0-123', 'Test Book', 'Author Name', 2020, 2);
+
+        // First check out
+        const result1 = book.checkOut();
+        expect(result1).toBe(true);
+        expect(book.availableCopies).toBe(1);
+
+        // Second check out
+        const result2 = book.checkOut();
+        expect(result2).toBe(true);
+        expect(book.availableCopies).toBe(0);
+
+        // Attempt check out when no copies remain
+        const result3 = book.checkOut();
+        expect(result3).toBe(false);
+        expect(book.availableCopies).toBe(0);
+    });
+    test('should correctly check availability', () => {
+        const book = new Book('978-0-123', 'Test Book', 'Author Name', 2020, 1);
+
+        expect(book.isAvailable()).toBe(true);
+
+        book.checkOut();
+        expect(book.isAvailable()).toBe(false);
+    });
+    test('should return formatted string via template literal methods', () => {
+        const book = new Book('978-0143127741', 'How to Read a Book', 'Mortimer J. Adler', 2020, 2);
+
+        if (typeof book.getSummary === 'function') {
+            expect(book.getSummary()).toBe('"How to Read a Book" by Mortimer J. Adler (2020)');
+        }
+
+        if (typeof book.toString === 'function') {
+            // Checks that toString() contains the actual title of the book
+            expect(book.toString()).toContain('How to Read a Book');
+        }
+    });
 });
 
 describe('DigitalBook Class', () => {
