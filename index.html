@@ -1,85 +1,346 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Management System</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Digital Library Management System" />
+    <title>Digital Library System</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>Digital Library System</h1>
-            <nav>
-                <button id="catalogue-tab">Catalogue</button>
-                <button id="members-tab">Members</button>
-                <button id="statistics-tab">Statistics</button>
-            </nav>
-        </header>
-        
-        <main>
-            <section id="catalogue-section">
-                <div class="controls">
-                    <input type="text" id="search" placeholder="Search books...">
-                    <select id="filter-category">
-                        <option value="all">All Categories</option>
-                        <option value="fiction">Fiction</option>
-                        <option value="non-fiction">Non-Fiction</option>
-                        <option value="reference">Reference</option>
-                    </select>
-                </div>
-                
-                <div id="catalogue-list" class="book-grid">
-                    <!-- Books rendered here -->
-                </div>
-                
-                <div id="book-details">
-                    <!-- Selected book details -->
-                </div>
-            </section>
-            
-            <section id="borrow-section">
-                <h2>Borrow a Book</h2>
-                <form id="borrow-form">
-                    <input type="text" id="member-id" placeholder="Member ID" required>
-                    <input type="text" id="isbn" placeholder="ISBN" required>
-                    <button type="submit">Borrow Book</button>
-                </form>
-            </section>
-            
-            <section id="member-section" style="display: none;">
-                <h2>Member Management</h2>
-                <div id="member-form">
-                    <!-- Member form rendered here -->
-                </div>
-                <div id="member-list">
-                    <!-- Members list -->
-                </div>
-            </section>
-            
-            <section id="statistics-section" style="display: none;">
-                <h2>Library Statistics</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total Books</h3>
-                        <p class="total-books">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Total Members</h3>
-                        <p class="total-members">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Books Borrowed</h3>
-                        <p class="books-borrowed">0</p>
-                    </div>
-                </div>
-            </section>
-        </main>
+      <header>
+        <h1>Digital Library System</h1>
+        <nav role="tablist" aria-label="Main navigation">
+          <button
+            id="dashboard-tab"
+            role="tab"
+            aria-selected="true"
+            aria-controls="dashboard-section"
+          >
+            Dashboard
+          </button>
+          <button
+            id="catalogue-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="catalogue-section"
+          >
+            Catalogue
+          </button>
+          <button
+            id="borrow-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="borrow-section"
+          >
+            Borrow
+          </button>
+          <button
+            id="returns-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="returns-section"
+          >
+            Returns
+          </button>
+          <button
+            id="members-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="member-section"
+          >
+            Members
+          </button>
+          <button
+            id="manage-books-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="manage-books-section"
+          >
+            Manage Books
+          </button>
+          <button
+            id="statistics-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="statistics-section"
+          >
+            Statistics
+          </button>
+        </nav>
+      </header>
+
+      <main>
+        <section
+          id="dashboard-section"
+          role="tabpanel"
+          aria-labelledby="dashboard-tab"
+        >
+          <h2>Dashboard</h2>
+          <div class="book-of-the-day-container">
+            <span class="botd-label">🌟 BOOK OF THE DAY</span>
+            <div class="typewriter-box">
+              <span id="typewriter-text"></span><span class="cursor">|</span>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>Total Books</h3>
+              <p class="total-books">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Total Members</h3>
+              <p class="total-members">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Books Borrowed</h3>
+              <p class="borrowed-books">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Overdue</h3>
+              <p class="overdue-count" style="color: #ff6b6b">0</p>
+            </div>
+          </div>
+          <div id="advanced-tools-panel" class="advanced-tools-panel">
+            <h3> Advanced Management Console</h3>
+
+            <div class="console-section">
+              <h4>1. Multi-Criteria Advanced Book Search</h4>
+              <div class="console-flex-row">
+                <input
+                  type="text"
+                  id="adv-author-input"
+                  class="console-input"
+                  placeholder="Filter by Author..."
+                />
+                <select id="adv-category-input" class="console-select">
+                  <option value="">All Categories</option>
+                  <option value="fiction">Fiction</option>
+                  <option value="non-Fiction">Non-Fiction</option>
+                  <option value="educational">Educational</option>
+                  <option value="drama">Drama</option>
+                  <option value="kids">Kids</option>
+                </select>
+                <button
+                  id="btn-adv-search"
+                  type="button"
+                  class="btn-console-search"
+                >
+                  Execute Search
+                </button>
+              </div>
+            </div>
+
+            <div class="console-section">
+              <h4>2. Member Fine & Recursive Overdue Audit</h4>
+              <div class="console-flex-row">
+                <input
+                  type="text"
+                  id="calc-member-id"
+                  class="console-input"
+                  placeholder="Enter Member ID..."
+                />
+                <button
+                  id="btn-calc-fines"
+                  type="button"
+                  class="btn-console-calc"
+                >
+                  Calculate Overdue Fines
+                </button>
+              </div>
+              <div id="fine-report-output" class="fine-report-output"></div>
+            </div>
+
+            <div>
+              <h4>3. Batch Data Importer</h4>
+              <button
+                id="btn-batch-demo"
+                type="button"
+                class="btn-console-batch"
+              >
+                Import Demo Collections
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="catalogue-section"
+          role="tabpanel"
+          aria-labelledby="catalogue-tab"
+          hidden
+        >
+          <h2>Catalogue</h2>
+          <div class="controls">
+            <div class="form-group">
+              <label for="search">Search</label>
+              <input
+                type="text"
+                id="search"
+                placeholder="Search by title, author..."
+              />
+            </div>
+            <div class="form-group">
+              <label for="filter-category">Category</label>
+              <select id="filter-category">
+                <option value="all">All Categories</option>
+                <option value="fiction">Fiction</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="drama">Drama</option>
+                <option value="educational">Educational</option>
+                <option value="kids">Kids</option>
+                <option value="reference">Reference</option>
+              </select>
+            </div>
+          </div>
+          <div id="catalogue-list" class="book-grid" role="list"></div>
+          <div id="book-details"></div>
+        </section>
+
+        <section
+          id="borrow-section"
+          role="tabpanel"
+          aria-labelledby="borrow-tab"
+          hidden
+        >
+          <h2>Borrow a Book</h2>
+          <form id="borrow-form">
+            <div class="form-group">
+              <label for="borrow-member-id">Member ID</label>
+              <input type="text" id="borrow-member-id" required />
+            </div>
+            <div class="form-group">
+              <label for="borrow-isbn">ISBN</label>
+              <input type="text" id="borrow-isbn" required />
+            </div>
+            <div class="form-group">
+              <label for="borrow-take-date">Take Date</label>
+              <input type="date" id="borrow-take-date" required />
+            </div>
+            <div class="form-group">
+              <label for="borrow-due-date">Expected Return Date</label>
+              <input type="date" id="borrow-due-date" required />
+            </div>
+            <button type="submit">Borrow Book</button>
+          </form>
+        </section>
+
+        <section
+          id="returns-section"
+          role="tabpanel"
+          aria-labelledby="returns-tab"
+          hidden
+        >
+          <h2>Return a Book</h2>
+          <form id="return-form">
+            <div class="form-group">
+              <label for="return-member-id">Member ID</label>
+              <input type="text" id="return-member-id" required />
+            </div>
+            <div class="form-group">
+              <label for="return-isbn">ISBN</label>
+              <input type="text" id="return-isbn" required />
+            </div>
+            <button type="submit">Process Return</button>
+          </form>
+          <div id="return-message"></div>
+        </section>
+
+        <section
+          id="member-section"
+          role="tabpanel"
+          aria-labelledby="members-tab"
+          hidden
+        >
+          <h2>Member Management</h2>
+
+          <form id="add-member-form" style="margin-bottom: 2rem">
+            <h3>Add New Member</h3>
+            <div class="form-group">
+              <label for="member-id">Member ID</label>
+              <input
+                type="text"
+                id="member-id"
+                placeholder="e.g. M001"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="member-name">Name</label>
+              <input
+                type="text"
+                id="member-name"
+                placeholder="Full Name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="member-email">Email</label>
+              <input
+                type="email"
+                id="member-email"
+                placeholder="email@example.com"
+                required
+              />
+            </div>
+            <button type="submit">Register Member</button>
+          </form>
+
+          <div id="member-list"></div>
+        </section>
+
+        <section
+          id="manage-books-section"
+          role="tabpanel"
+          aria-labelledby="manage-books-tab"
+          hidden
+        >
+          <h2>Manage Books</h2>
+          <form id="add-book-form">
+            <div class="form-group">
+              <label for="title">Title</label>
+              <input type="text" id="title" required />
+            </div>
+            <div class="form-group">
+              <label for="author">Author</label>
+              <input type="text" id="author" required />
+            </div>
+            <div class="form-group">
+              <label for="isbn">ISBN</label>
+              <input type="text" id="isbn" required />
+            </div>
+            <div class="form-group">
+              <label for="copies">Number of Copies</label>
+              <input type="number" id="copies" min="1" value="1" required />
+            </div>
+            <div class="form-group">
+              <label for="category">Category</label>
+              <select id="category">
+                <option value="fiction">Fiction</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="drama">Drama</option>
+                <option value="educational">Educational</option>
+                <option value="kids">Kids</option>
+                <option value="reference">Reference</option>
+              </select>
+            </div>
+            <button type="submit">Add New Book</button>
+          </form>
+        </section>
+
+        <section
+          id="statistics-section"
+          role="tabpanel"
+          aria-labelledby="statistics-tab"
+          hidden
+        >
+          <h2>Library Statistics</h2>
+          <div id="detailed-stats-grid" class="stats-grid"></div>
+        </section>
+      </main>
     </div>
-    
-    <!-- Scripts in wrong order -->
-    <script src="ui.js"></script>
-    <script src="library.js"></script>
-    <!-- Missing: modules setup -->
-</body>
+
+    <script type="module" src="./src/ui.js"></script>
+  </body>
 </html>
