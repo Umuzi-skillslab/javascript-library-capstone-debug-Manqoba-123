@@ -65,6 +65,7 @@ describe('Book Class', () => {
         expect(result3).toBe(false);
         expect(book.availableCopies).toBe(0);
     });
+
     test('should correctly check availability', () => {
         const book = new Book('978-0-123', 'Test Book', 'Author Name', 2020, 1);
 
@@ -73,6 +74,7 @@ describe('Book Class', () => {
         book.checkOut();
         expect(book.isAvailable()).toBe(false);
     });
+
     test('should return formatted string via template literal methods', () => {
         const book = new Book('978-0143127741', 'How to Read a Book', 'Mortimer J. Adler', 2020, 2);
 
@@ -88,9 +90,41 @@ describe('Book Class', () => {
 });
 
 describe('DigitalBook Class', () => {
-    // Missing: test for inheritance
-    // Missing: test for super() call
-    // Missing: test for download method
+    test('should properly inherit from Book class', () => {
+        const digitalBook = new DigitalBook('978-0-999', 'JS Guide', 'Coder Bob', 2022, '5MB', 'PDF');
+
+        // Verify inheritance chain
+        expect(digitalBook).toBeInstanceOf(Book);
+        expect(digitalBook).toBeInstanceOf(DigitalBook);
+    });
+
+    test('should call super() correctly and set both parent and subclass properties', () => {
+        const digitalBook = new DigitalBook('978-0-999', 'JS Guide', 'Coder Bob', 2022, '10MB', 'EPUB');
+
+        expect(digitalBook.isbn).toBe('978-0-999');
+        expect(digitalBook.title).toBe('JS Guide');
+        expect(digitalBook.author).toBe('Coder Bob');
+        expect(digitalBook.year).toBe(2022);
+        expect(digitalBook.availableCopies).toBe(Infinity);
+
+        expect(digitalBook.fileSize).toBe('10MB');
+        expect(digitalBook.format).toBe('EPUB');
+        expect(digitalBook.downloads).toBe(0);
+    });
+
+    test('should handle download method correctly', () => {
+        const digitalBook = new DigitalBook('978-0-999', 'JS Guide', 'Coder Bob', 2022, '5MB', 'PDF');
+
+        const result1 = digitalBook.download('M001');
+        expect(result1).toBe(true);
+        expect(digitalBook.downloads).toBe(1);
+        expect(digitalBook.checkedOut).toContain('M001');
+
+        const result2 = digitalBook.download('M002');
+        expect(result2).toBe(true);
+        expect(digitalBook.downloads).toBe(2);
+        expect(digitalBook.checkedOut).toContain('M002');
+    });
 });
 
 describe('Member Class', () => {
