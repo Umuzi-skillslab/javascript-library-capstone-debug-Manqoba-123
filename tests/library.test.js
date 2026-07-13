@@ -137,16 +137,37 @@ describe('DigitalBook Class', () => {
 });
 
 describe('Member Class', () => {
-    test('canBorrow returns boolean', () => {
-        var member = new Member(1, 'John Doe', 'john@example.com', 'standard');
-        var result = member.canBorrow();
 
-        // Wrong assertion type
-        expect(typeof result).toBe('boolean');
+    test('should create a member instance with correct properties', () => {
+        const member = new Member('M001', 'John Doe', 'john@example.com', 'standard', '2023-01-01');
+
+        expect(member.id).toBe('M001');
+        expect(member.name).toBe('John Doe');
+        expect(member.email).toBe('john@example.com');
+        expect(member.membershipType).toBe('standard');
+        expect(member.borrowedBooks).toEqual([]);
+        expect(member.joinDate).toBe('2023-01-01');
     });
 
-    // Missing: test for borrow limit
-    // Missing: test for membership duration calculation
+    test('canBorrow returns boolean', () => {
+        const member = new Member('M001', 'John Doe', 'john@example.com', 'standard');
+
+        expect(member.canBorrow()).toBe(true);
+
+        member.borrowedBooks = ['ISBN1', 'ISBN2', 'ISBN3', 'ISBN4', 'ISBN5'];
+        expect(member.canBorrow()).toBe(false);
+    });
+
+    test('should calculate membership duration correctly', () => {
+        const tenDaysAgo = new Date();
+        tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+        const joinDateStr = tenDaysAgo.toISOString().split('T')[0];
+
+        const member = new Member('M001', 'John Doe', 'john@example.com', 'standard', joinDateStr);
+
+        expect(typeof member.getMembershipDuration).toBe('function');
+        expect(member.getMembershipDuration()).toBe(10);
+    });
 });
 
 describe('PremiumMember Class', () => {
