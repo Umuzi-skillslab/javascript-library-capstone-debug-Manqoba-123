@@ -393,9 +393,54 @@ describe('Recursive Functions', () => {
 });
 
 describe('Error Handling', () => {
-    // Missing: tests for try-catch blocks
-    // Missing: tests for undefined/null handling
-    // Missing: tests for type checking
+    beforeEach(() => {
+        // Reset state before each error test
+        books.length = 0;
+        members.length = 0;
+        loans.length = 0;
+
+        books.push(new Book('978-0131103627', 'Clean Code', 'Robert Martin', 2008, 2));
+        members.push(new Member('M100', 'Grace Hopper', 'grace@example.com', 'standard'));
+    });
+
+    test('borrowBook safely handles undefined and null parameters without crashing', () => {
+        expect(() => borrowBook(null, '978-0131103627')).not.toThrow();
+        expect(borrowBook(null, '978-0131103627')).toBe(false);
+
+        expect(() => borrowBook('M100', null)).not.toThrow();
+        expect(borrowBook('M100', null)).toBe(false);
+
+        expect(borrowBook(undefined, undefined)).toBe(false);
+    });
+
+    test('borrowBook handles non-existent members or books gracefully', () => {
+        expect(borrowBook('NON_EXISTENT_MEMBER', '978-0131103627')).toBe(false);
+
+        expect(borrowBook('M100', 'INVALID_ISBN')).toBe(false);
+    });
+
+    test('returnBook executes try-catch safety on bad inputs', () => {
+        expect(() => returnBook(null, null)).not.toThrow();
+        
+        const failureResult = returnBook('NON_EXISTENT_MEMBER', 'INVALID_ISBN');
+        expect(failureResult).toEqual({ success: false });
+    });
+
+    test('calculateFineAmount performs type checking and NaN handling', () => {
+        expect(calculateFineAmount('invalid_number')).toBe('0.00');
+        expect(calculateFineAmount(NaN)).toBe('0.00');
+        expect(calculateFineAmount(null)).toBe('0.00');
+        expect(calculateFineAmount(undefined)).toBe('0.00');
+        expect(calculateFineAmount(-10)).toBe('0.00');
+
+        expect(calculateFineAmount(4)).toBe('2.00');
+    });
+   
+    test('updateMemberInfo validates input object types', () => {
+        expect(updateMemberInfo(null, { name: 'New Name' })).toBeNull();
+        expect(updateMemberInfo(undefined, {})).toBeNull();
+        expect(updateMemberInfo('not_an_object', {})).toBeNull();
+    });
 });
 
 describe('String Operations', () => {
