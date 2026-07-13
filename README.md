@@ -8,7 +8,7 @@ The **Community Library Management System** is an interactive web application de
 
 ---
 
-## Critical Errors Found (20 Bug Audit)
+## Critical Errors Found
 
 | # | Bug Description | Severity |
 |---|---|---|
